@@ -12,6 +12,9 @@ const rootToken: Token = {
   parent: {} as Token,
 };
 
+/**
+ * マークダウンの１行からASTを生成する
+ */
 export const parse = (markdownRow: string) => {
   return _tokenizeText(markdownRow);
 };
