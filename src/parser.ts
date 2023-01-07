@@ -1,5 +1,6 @@
 import {
   matchWithStrongRegxp,
+  matchWithListRegxp,
   genStrongElement,
   genTextElement,
 } from "./lexer";
@@ -16,6 +17,9 @@ const rootToken: Token = {
  * マークダウンの１行からASTを生成する
  */
 export const parse = (markdownRow: string) => {
+  if (matchWithListRegxp(markdownRow)) {
+    return _tokenizeList(markdownRow);
+  }
   return _tokenizeText(markdownRow);
 };
 
@@ -68,4 +72,33 @@ const _tokenizeText = (
   };
   _tokenize(textElement, parent);
   return elements;
+};
+
+export const _tokenizeList = (listString: string) => {
+  const UL = "ul";
+  const LIST = "li";
+
+  let id = 1;
+  const rootUlToken: Token = {
+    id,
+    elmType: UL,
+    content: "",
+    parent: rootToken,
+  };
+  let parent = rootUlToken;
+  let tokens: Token[] = [rootUlToken];
+  const match = matchWithListRegxp(listString) as RegExpMatchArray;
+
+  id += 1;
+  const listToken: Token = {
+    id,
+    elmType: LIST,
+    content: "", // Indent level
+    parent,
+  };
+  tokens.push(listToken);
+  const listText: Token[] = _tokenizeText(match[3], id, listToken);
+  id += listText.length;
+  tokens.push(...listText);
+  return tokens;
 };

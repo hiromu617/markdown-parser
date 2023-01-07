@@ -2,7 +2,7 @@ import { Token } from "./models/token";
 import { MergedToken } from "./models/merged_token";
 
 const isAllElmParentRoot = (tokens: Array<Token | MergedToken>) => {
-  return tokens.every((t) => t.elmType === "root");
+  return tokens.map((t) => t.parent?.elmType).every((val) => val === "root");
 };
 
 // ???
@@ -28,6 +28,12 @@ const _createMergedContent = (
 ) => {
   let content = "";
   switch (parentToken.elmType) {
+    case "li":
+      content = `<li>${currentToken.content}</li>`;
+      break;
+    case "ul":
+      content = `<ul>${currentToken.content}</ul>`;
+      break;
     case "strong":
       content = `<strong>${currentToken.content}</strong>`;
       break;
@@ -51,33 +57,35 @@ const _generateHTMLString = (tokens: Array<Token | MergedToken>) => {
 const generate = (asts: Token[][]) => {
   const htmlStrings = asts.map((lineTokens) => {
     let rearrangedAst: Array<Token | MergedToken> = lineTokens.reverse();
+    // すべてのトークンがRootの下に付くまでマージを繰り返す
     while (!isAllElmParentRoot(rearrangedAst)) {
       let index = 0;
       while (index < rearrangedAst.length) {
-        const currentToken = rearrangedAst[index];
-        if (currentToken.parent.elmType === "root") {
+        if (rearrangedAst[index].parent?.elmType === "root") {
+          // Rootにあるトークンの場合何もしない。
           index++;
         } else {
+          const currentToken = rearrangedAst[index];
           rearrangedAst = rearrangedAst.filter((_, t) => t !== index); // Remove current token
           const parentIndex = rearrangedAst.findIndex(
             (t) => t.id === currentToken.parent.id
           );
           const parentToken = rearrangedAst[parentIndex];
-
           const mergedToken: MergedToken = {
             id: parentToken.id,
             elmType: "merged",
             content: _createMergedContent(currentToken, parentToken),
             parent: parentToken.parent,
           };
-
           rearrangedAst.splice(parentIndex, 1, mergedToken);
+          // parentとマージする。
+          // つまり2つ変更する。子は削除。親は置き換え。
+          // 1つ親と合成したら1つ要素を消す。のでindexは変わらず。なのでマージしない時のみindex++する。
         }
       }
     }
     return _generateHTMLString(rearrangedAst);
   });
-
   return htmlStrings.join("");
 };
 

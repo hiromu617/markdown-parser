@@ -4,6 +4,7 @@ const TEXT = "text";
 const STRONG = "strong";
 
 const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
+const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
 
 const genTextElement = (id: number, text: string, parent: Token): Token => {
   return {
@@ -27,4 +28,13 @@ const matchWithStrongRegxp = (text: string) => {
   return text.match(STRONG_ELM_REGXP);
 };
 
-export { genTextElement, genStrongElement, matchWithStrongRegxp };
+const matchWithListRegxp = (text: string) => {
+  return text.match(LIST_REGEXP);
+};
+
+export {
+  genTextElement,
+  genStrongElement,
+  matchWithStrongRegxp,
+  matchWithListRegxp,
+};
