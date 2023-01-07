@@ -7,4 +7,4 @@ const convertToHTMLString = (markdown: string) => {
   const htmlString = generate(asts);
   return htmlString;
 };
-console.log(convertToHTMLString("normal"));
+console.log(convertToHTMLString("**normal**"));

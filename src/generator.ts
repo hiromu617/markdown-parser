@@ -53,8 +53,8 @@ const generate = (asts: Token[][]) => {
     let rearrangedAst: Array<Token | MergedToken> = lineTokens.reverse();
     while (!isAllElmParentRoot(rearrangedAst)) {
       let index = 0;
-      const currentToken = rearrangedAst[index];
       while (index < rearrangedAst.length) {
+        const currentToken = rearrangedAst[index];
         if (currentToken.parent.elmType === "root") {
           index++;
         } else {
