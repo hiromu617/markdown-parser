@@ -8,4 +8,5 @@ const convertToHTMLString = (markdown: string) => {
   const htmlString = generate(asts);
   return htmlString;
 };
-console.log(convertToHTMLString("* list1\n* list2"));
+
+console.log(convertToHTMLString('* list1\n* **list2**'))

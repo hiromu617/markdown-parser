@@ -91,7 +91,7 @@ const _tokenizeList = (listString: string) => {
     .split(/\r\n|\r|\n/)
     .filter(Boolean)
     .forEach((l) => {
-      const match = matchWithListRegxp(listString) as RegExpMatchArray;
+      const match = matchWithListRegxp(l) as RegExpMatchArray;
 
       id += 1;
       const listToken: Token = {

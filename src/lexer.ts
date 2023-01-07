@@ -22,16 +22,17 @@ const analize = (markdown: string) => {
       state = LIST_STATE;
       lists += `${md}\n`;
     } else if (state === LIST_STATE && listMatch) {
+      // 最後の行がリストだった場合
       if (index === rawMdArray.length - 1) {
         lists += `${md}`;
         mdArray.push(lists);
       } else {
-        lists += `${md}`;
+        lists += `${md}\n`;
       }
     } else if (state === LIST_STATE && !listMatch) {
       state = NEUTRAL_STATE;
       mdArray.push(lists);
-      lists = "";
+      lists = ""; // 複数のリストがあった場合のためリスト変数をリセットする
     }
 
     if (lists.length === 0) mdArray.push(md);
