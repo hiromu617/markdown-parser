@@ -1,8 +1,5 @@
 import { Token } from "./models/token";
 
-const TEXT = "text";
-const STRONG = "strong";
-
 const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
 
@@ -50,7 +47,7 @@ const analize = (markdown: string) => {
 const genTextElement = (id: number, text: string, parent: Token): Token => {
   return {
     id,
-    elmType: TEXT,
+    elmType: "text",
     content: text,
     parent,
   };
@@ -59,7 +56,7 @@ const genTextElement = (id: number, text: string, parent: Token): Token => {
 const genStrongElement = (id: number, text: string, parent: Token): Token => {
   return {
     id,
-    elmType: STRONG,
+    elmType: "strong",
     content: "",
     parent,
   };

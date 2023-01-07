@@ -75,13 +75,10 @@ const _tokenizeText = (
 };
 
 const _tokenizeList = (listString: string) => {
-  const UL = "ul";
-  const LIST = "li";
-
   let id = 1;
   const rootUlToken: Token = {
     id,
-    elmType: UL,
+    elmType: "ul",
     content: "",
     parent: rootToken,
   };
@@ -96,7 +93,7 @@ const _tokenizeList = (listString: string) => {
       id += 1;
       const listToken: Token = {
         id,
-        elmType: LIST,
+        elmType: "li",
         content: "", // Indent level
         parent,
       };
