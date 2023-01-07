@@ -74,7 +74,7 @@ const _tokenizeText = (
   return elements;
 };
 
-export const _tokenizeList = (listString: string) => {
+const _tokenizeList = (listString: string) => {
   const UL = "ul";
   const LIST = "li";
 
@@ -87,18 +87,23 @@ export const _tokenizeList = (listString: string) => {
   };
   let parent = rootUlToken;
   let tokens: Token[] = [rootUlToken];
-  const match = matchWithListRegxp(listString) as RegExpMatchArray;
+  listString
+    .split(/\r\n|\r|\n/)
+    .filter(Boolean)
+    .forEach((l) => {
+      const match = matchWithListRegxp(listString) as RegExpMatchArray;
 
-  id += 1;
-  const listToken: Token = {
-    id,
-    elmType: LIST,
-    content: "", // Indent level
-    parent,
-  };
-  tokens.push(listToken);
-  const listText: Token[] = _tokenizeText(match[3], id, listToken);
-  id += listText.length;
-  tokens.push(...listText);
+      id += 1;
+      const listToken: Token = {
+        id,
+        elmType: LIST,
+        content: "", // Indent level
+        parent,
+      };
+      tokens.push(listToken);
+      const listText: Token[] = _tokenizeText(match[3], id, listToken);
+      id += listText.length;
+      tokens.push(...listText);
+    });
   return tokens;
 };
