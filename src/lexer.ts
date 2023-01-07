@@ -6,36 +6,42 @@ const STRONG = "strong";
 const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
 
+/**
+ * 1行ごとの文字列の配列を返す
+ * ただし、listは一つの要素にまとめられる
+ */
 const analize = (markdown: string) => {
-  const NEUTRAL_STATE = "neutral_state";
-  const LIST_STATE = "list_state";
-  let state = NEUTRAL_STATE;
+  let state: "neutral_state" | "list_state" = "neutral_state";
 
   let lists = "";
 
-  const rawMdArray = markdown.split(/\r\n|\r|\n/);
-  let mdArray: Array<string> = [];
+  const rawMdArray: ReadonlyArray<string> = markdown.split(/\r\n|\r|\n/);
+  const mdArray: Array<string> = [];
 
   rawMdArray.forEach((md, index) => {
-    const listMatch = md.match(LIST_REGEXP);
-    if (state === NEUTRAL_STATE && listMatch) {
-      state = LIST_STATE;
+    const isListMatch = !!md.match(LIST_REGEXP);
+    if (state === "neutral_state" && isListMatch) {
+      state = "list_state";
       lists += `${md}\n`;
-    } else if (state === LIST_STATE && listMatch) {
+      return;
+    }
+    if (state === "list_state" && isListMatch) {
       // 最後の行がリストだった場合
       if (index === rawMdArray.length - 1) {
         lists += `${md}`;
         mdArray.push(lists);
-      } else {
-        lists += `${md}\n`;
+        return;
       }
-    } else if (state === LIST_STATE && !listMatch) {
-      state = NEUTRAL_STATE;
+      lists += `${md}\n`;
+      return;
+    }
+    if (state === "neutral_state" && !isListMatch) mdArray.push(md);
+    if (state === "list_state" && !isListMatch) {
+      state = "neutral_state";
       mdArray.push(lists);
       lists = ""; // 複数のリストがあった場合のためリスト変数をリセットする
+      return;
     }
-
-    if (lists.length === 0) mdArray.push(md);
   });
 
   return mdArray;
