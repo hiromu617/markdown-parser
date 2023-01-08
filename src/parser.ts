@@ -67,7 +67,7 @@ const _tokenize = (
       break;
     }
 
-    const { newProcessingText, newParent, newTokens, inner } = processInlineElm(
+    const { newProcessingText, newTokens } = processInlineElm(
       processingText,
       parent,
       tokens,
@@ -75,10 +75,7 @@ const _tokenize = (
     );
 
     processingText = newProcessingText;
-    parent = newParent;
     tokens = newTokens;
-
-    _tokenize(inner, parent, tokens);
     parent = initialParent;
   }
   return tokens;
@@ -116,11 +113,11 @@ const processInlineElm = (
   processingText = processingText.replace(matchString, "");
   tokens.push(elm);
 
+  _tokenize(inner, parent, tokens);
+
   return {
     newProcessingText: processingText,
-    newParent: parent,
     newTokens: tokens,
-    inner,
   };
 };
 
