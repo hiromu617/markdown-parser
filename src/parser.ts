@@ -1,7 +1,5 @@
 import {
-  isMatchWithStrongRegxp,
   matchWithStrongRegxp,
-  isMatchWithItalicRegxp,
   matchWithItalicRegxp,
   matchWithListRegxp,
   isMatchWithListRegxp,
@@ -11,6 +9,7 @@ import {
   genRootElement,
   genUlElement,
   genLiElement,
+  detectFirstInlineElement,
 } from "./lexer";
 import { Token } from "./models/token";
 import { assertExists } from "./utils/assert";
@@ -50,77 +49,82 @@ const _tokenize = (
   let parent = initialParent;
 
   while (processingText.length !== 0) {
-    const isStrongMatch = isMatchWithStrongRegxp(processingText);
-    const isItalicMatch = isMatchWithItalicRegxp(processingText);
-
-    const isOnlyText = !isStrongMatch && !isItalicMatch;
+    const firstInlineElmType = detectFirstInlineElement(processingText);
+    const isOnlyText = firstInlineElmType === "none";
 
     if (isOnlyText) {
       const onlyText = genTextElement(processingText, parent);
       processingText = "";
       tokens.push(onlyText);
-      return tokens;
+      break;
     }
 
-    const {
-      index: italicIndex,
-      matchString: italicMatchString,
-      inner: italicInner,
-    } = matchWithItalicRegxp(processingText);
-    const {
-      index: strongIndex,
-      matchString: strongMatchString,
-      inner: strongInner,
-    } = matchWithStrongRegxp(processingText);
+    const { newProcessingText, newParent, newTokens, inner } = processInlineElm(
+      processingText,
+      parent,
+      tokens,
+      firstInlineElmType
+    );
 
-    if (isItalicMatch && (italicIndex ?? 9999) < (strongIndex ?? 9999)) {
-      assertExists(italicIndex);
-      assertExists(italicMatchString);
-      assertExists(italicInner);
+    processingText = newProcessingText;
+    parent = newParent;
+    tokens = newTokens;
 
-      if (italicIndex > 0) {
-        const text = processingText.substring(0, italicIndex);
-        const textElm = genTextElement(text, parent);
-        tokens.push(textElm);
-        processingText = processingText.replace(text, ""); // 処理中のテキストからトークンにしたテキストを削除する
-      }
-
-      const elm = genItalicElement(parent);
-
-      parent = elm;
-      tokens.push(elm);
-
-      processingText = processingText.replace(italicMatchString, "");
-
-      _tokenize(italicInner, parent, tokens);
-      parent = initialParent;
-    }
-
-    if (isStrongMatch && (strongIndex ?? 9999) < (italicIndex ?? 9999)) {
-      assertExists(strongIndex);
-      assertExists(strongMatchString);
-      assertExists(strongInner);
-      // Text + Tokenの時, TEXTを取り除く
-      // ex) "aaa**bb**cc" -> TEXT Token + "**bb**cc" にする
-      if (strongIndex > 0) {
-        const text = processingText.substring(0, strongIndex);
-        const textElm = genTextElement(text, parent);
-        tokens.push(textElm);
-        processingText = processingText.replace(text, ""); // 処理中のテキストからトークンにしたテキストを削除する
-      }
-
-      const elm = genStrongElement(parent);
-
-      parent = elm;
-      tokens.push(elm);
-
-      processingText = processingText.replace(strongMatchString, "");
-
-      _tokenize(strongInner, parent, tokens);
-      parent = initialParent;
-    }
+    _tokenize(inner, parent, tokens);
+    parent = initialParent;
   }
   return tokens;
+};
+
+const processInlineElm = (
+  processingText: string,
+  parent: Token,
+  tokens: Token[],
+  firstInlineElmType: ReturnType<typeof detectFirstInlineElement>
+) => {
+  let matchResult: ReturnType<typeof matchWithItalicRegxp>;
+  if (firstInlineElmType === "italic") {
+    matchResult = matchWithItalicRegxp(processingText);
+  } else if (firstInlineElmType === "strong") {
+    matchResult = matchWithStrongRegxp(processingText);
+  } else {
+    throw Error();
+  }
+
+  assertExists(matchResult.index);
+  assertExists(matchResult.matchString);
+  assertExists(matchResult.inner);
+
+  const { index, matchString, inner } = matchResult;
+
+  // Text + Tokenの時, TEXTを取り除く
+  // ex) "aaa**bb**cc" -> TEXT Token + "**bb**cc" にする
+  if (index > 0) {
+    const text = processingText.substring(0, index);
+    const textElm = genTextElement(text, parent);
+    tokens.push(textElm);
+    processingText = processingText.replace(text, "");
+  }
+
+  let elm: Token;
+  if (firstInlineElmType === "italic") {
+    elm = genItalicElement(parent);
+  } else if (firstInlineElmType === "strong") {
+    elm = genStrongElement(parent);
+  } else {
+    throw Error();
+  }
+
+  parent = elm;
+  processingText = processingText.replace(matchString, "");
+  tokens.push(elm);
+
+  return {
+    newProcessingText: processingText,
+    newParent: parent,
+    newTokens: tokens,
+    inner,
+  };
 };
 
 /**

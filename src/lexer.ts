@@ -1,4 +1,4 @@
-import { Token } from "./models/token";
+import { Token, InlineElmType } from "./models/token";
 
 const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
 const ITALIC_ELM_REGXP = /__(.*?)__/;
@@ -139,4 +139,19 @@ export const matchWithListRegxp = (text: string) => {
 
 export const isMatchWithListRegxp = (text: string): boolean => {
   return !!text.match(LIST_REGEXP);
+};
+
+export const detectFirstInlineElement = (
+  text: string
+): InlineElmType | "none" => {
+  const italicMatchResult = text.match(ITALIC_ELM_REGXP);
+  const strongMatchResult = text.match(STRONG_ELM_REGXP);
+
+  const italicIndex = italicMatchResult?.index ?? Infinity;
+  const strongIndex = strongMatchResult?.index ?? Infinity;
+
+  if (italicIndex < strongIndex) return "italic";
+  if (strongIndex < italicIndex) return "strong";
+
+  return "none";
 };
