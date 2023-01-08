@@ -8,16 +8,14 @@ import {
   genStrongElement,
   genItalicElement,
   genTextElement,
+  genRootElement,
+  genUlElement,
+  genLiElement,
 } from "./lexer";
 import { Token } from "./models/token";
 import { assertExists } from "./utils/assert";
 
-const rootToken: Token = {
-  id: 0,
-  elmType: "root",
-  content: "",
-  parent: {} as Token,
-};
+const rootToken = genRootElement();
 
 /**
  * マークダウンの１行からASTを生成する
@@ -36,13 +34,10 @@ export const parse = (markdownRow: string) => {
  */
 const _tokenizeText = (
   textElement: string,
-  initialId: number = 0,
   initialRoot: Token = rootToken
 ): Token[] => {
   const tokens: Token[] = [];
   let parent: Token = initialRoot;
-
-  let id = initialId;
 
   const _tokenize = (originalText: string, p: Token) => {
     let processingText = originalText;
@@ -55,8 +50,7 @@ const _tokenizeText = (
       const isOnlyText = !isStrongMatch && !isItalicMatch;
 
       if (isOnlyText) {
-        id += 1;
-        const onlyText = genTextElement(id, processingText, parent);
+        const onlyText = genTextElement(processingText, parent);
         processingText = "";
         tokens.push(onlyText);
         return;
@@ -80,14 +74,12 @@ const _tokenizeText = (
 
         if (italicIndex > 0) {
           const text = processingText.substring(0, italicIndex);
-          id += 1;
-          const textElm = genTextElement(id, text, parent);
+          const textElm = genTextElement(text, parent);
           tokens.push(textElm);
           processingText = processingText.replace(text, ""); // 処理中のテキストからトークンにしたテキストを削除する
         }
 
-        id += 1;
-        const elm = genItalicElement(id, "", parent);
+        const elm = genItalicElement(parent);
 
         parent = elm;
         tokens.push(elm);
@@ -106,14 +98,12 @@ const _tokenizeText = (
         // ex) "aaa**bb**cc" -> TEXT Token + "**bb**cc" にする
         if (strongIndex > 0) {
           const text = processingText.substring(0, strongIndex);
-          id += 1;
-          const textElm = genTextElement(id, text, parent);
+          const textElm = genTextElement(text, parent);
           tokens.push(textElm);
           processingText = processingText.replace(text, ""); // 処理中のテキストからトークンにしたテキストを削除する
         }
 
-        id += 1;
-        const elm = genStrongElement(id, "", parent);
+        const elm = genStrongElement(parent);
 
         parent = elm;
         tokens.push(elm);
@@ -133,14 +123,7 @@ const _tokenizeText = (
  * 行頭がlistの時、Tokenの配列を返す
  */
 const _tokenizeList = (listString: string): Token[] => {
-  let id = 1;
-  const rootUlToken: Token = {
-    id,
-    elmType: "ul",
-    content: "",
-    parent: rootToken,
-  };
-  let parent = rootUlToken;
+  const rootUlToken = genUlElement(rootToken);
   const tokens: Token[] = [rootUlToken];
 
   listString
@@ -150,16 +133,9 @@ const _tokenizeList = (listString: string): Token[] => {
       const { restString } = matchWithListRegxp(l);
       assertExists(restString);
 
-      id += 1;
-      const listToken: Token = {
-        id,
-        elmType: "li",
-        content: "",
-        parent,
-      };
+      const listToken = genLiElement(rootUlToken);
       tokens.push(listToken);
-      const listText: Token[] = _tokenizeText(restString, id, listToken);
-      id += listText.length;
+      const listText: Token[] = _tokenizeText(restString, listToken);
       tokens.push(...listText);
     });
   return tokens;

@@ -45,11 +45,20 @@ export const analize = (markdown: string) => {
   return mdArray;
 };
 
-export const genTextElement = (
-  id: number,
-  text: string,
-  parent: Token
-): Token => {
+let id = 0;
+
+export const genRootElement = (): Token => {
+  id += 1;
+  return {
+    id: 0,
+    elmType: "root",
+    content: "",
+    parent: {} as Token,
+  };
+};
+
+export const genTextElement = (text: string, parent: Token): Token => {
+  id += 1;
   return {
     id,
     elmType: "text",
@@ -58,11 +67,8 @@ export const genTextElement = (
   };
 };
 
-export const genStrongElement = (
-  id: number,
-  text: string,
-  parent: Token
-): Token => {
+export const genStrongElement = (parent: Token): Token => {
+  id += 1;
   return {
     id,
     elmType: "strong",
@@ -71,14 +77,31 @@ export const genStrongElement = (
   };
 };
 
-export const genItalicElement = (
-  id: number,
-  text: string,
-  parent: Token
-): Token => {
+export const genItalicElement = (parent: Token): Token => {
+  id += 1;
   return {
     id,
     elmType: "italic",
+    content: "",
+    parent,
+  };
+};
+
+export const genUlElement = (parent: Token): Token => {
+  id += 1;
+  return {
+    id,
+    elmType: "ul",
+    content: "",
+    parent,
+  };
+};
+
+export const genLiElement = (parent: Token): Token => {
+  id += 1;
+  return {
+    id,
+    elmType: "li",
     content: "",
     parent,
   };
