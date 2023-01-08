@@ -11,7 +11,7 @@ import {
   genLiElement,
   detectFirstInlineElement,
 } from "./lexer";
-import { Token } from "./models/token";
+import { Token, InlineElmType } from "./models/token";
 import { assertExists } from "./utils/assert";
 
 const rootToken = genRootElement();
@@ -80,15 +80,13 @@ const processInlineElm = (
   processingText: string,
   parent: Token,
   tokens: Token[],
-  firstInlineElmType: ReturnType<typeof detectFirstInlineElement>
+  firstInlineElmType: InlineElmType
 ) => {
   let matchResult: ReturnType<typeof matchWithItalicRegxp>;
   if (firstInlineElmType === "italic") {
     matchResult = matchWithItalicRegxp(processingText);
-  } else if (firstInlineElmType === "strong") {
-    matchResult = matchWithStrongRegxp(processingText);
   } else {
-    throw Error();
+    matchResult = matchWithStrongRegxp(processingText);
   }
 
   assertExists(matchResult.index);
@@ -109,10 +107,8 @@ const processInlineElm = (
   let elm: Token;
   if (firstInlineElmType === "italic") {
     elm = genItalicElement(parent);
-  } else if (firstInlineElmType === "strong") {
-    elm = genStrongElement(parent);
   } else {
-    throw Error();
+    elm = genStrongElement(parent);
   }
 
   parent = elm;
