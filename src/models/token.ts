@@ -5,9 +5,11 @@ export type ElmType =
   | "ul"
   | "li"
   | "italic"
-  | "strike";
+  | "strike"
+  | "h1";
 
 export type InlineElmType = Extract<ElmType, "strong" | "italic" | "strike">;
+export type BlockElmType = Extract<ElmType, "h1">;
 
 export type Token = {
   id: number;

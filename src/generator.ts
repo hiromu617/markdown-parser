@@ -43,6 +43,9 @@ const _createMergedContent = (
     case "strike":
       content = `<strike>${currentToken.content}</strike>`;
       break;
+    case "h1":
+      content = `<h1>${currentToken.content}</h1>`;
+      break;
     case "merged":
       const position = _getInsertPosition(parentToken.content);
 
@@ -79,11 +82,14 @@ export const generate = (asts: Token[][]) => {
           index++;
         } else {
           const currentToken = rearrangedAst[index];
+
           rearrangedAst = rearrangedAst.filter((_, t) => t !== index); // Remove current token
           const parentIndex = rearrangedAst.findIndex(
             (t) => t.id === currentToken.parent.id
           );
           const parentToken = rearrangedAst[parentIndex];
+          if (!parentToken) break;
+
           const mergedToken: MergedToken = {
             id: parentToken.id,
             elmType: "merged",

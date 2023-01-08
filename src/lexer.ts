@@ -1,10 +1,10 @@
-import { Token, InlineElmType, ElmType } from "./models/token";
-import { assertExists } from "./utils/assert";
+import { Token, InlineElmType, ElmType, BlockElmType } from "./models/token";
 
 const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
 const ITALIC_ELM_REGXP = /__(.*?)__/;
 const STRIKE_ELM_REGXP = /~~(.*?)~~/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
+const H1_REGEXP = /^( # (.+))$/m;
 
 /**
  * 1行ごとの文字列の配列を返す
@@ -106,6 +106,20 @@ export const getInlineElmMatchResult = (type: InlineElmType, text: string) => {
   return { index, matchString, inner };
 };
 
+export const getBlockElmMatchResult = (type: BlockElmType, text: string) => {
+  let matchResult: RegExpMatchArray | undefined;
+  switch (type) {
+    case "h1":
+      matchResult = text.match(H1_REGEXP) ?? undefined;
+      break;
+    default:
+      const _: never = type;
+  }
+
+  const restString = matchResult?.[2];
+  return { restString };
+};
+
 export const matchWithListRegxp = (text: string) => {
   const match = text.match(LIST_REGEXP);
   const restString = match?.[3];
@@ -114,6 +128,10 @@ export const matchWithListRegxp = (text: string) => {
 
 export const isMatchWithListRegxp = (text: string): boolean => {
   return !!text.match(LIST_REGEXP);
+};
+
+export const isMatchWithH1Regxp = (text: string): boolean => {
+  return !!text.match(H1_REGEXP);
 };
 
 export const detectFirstInlineElement = (

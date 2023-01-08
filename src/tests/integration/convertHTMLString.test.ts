@@ -22,31 +22,45 @@ describe("convertToHTMLString", () => {
       const string = "__text__";
       const expected = "<i>text</i>";
       expect(convertToHTMLString(string)).toBe(expected);
-    })
+    });
     test("__aaa__bbb**ccc**が正しく出力される", () => {
       const string = "__aaa__bbb**ccc**";
       const expected = "<i>aaa</i>bbb<strong>ccc</strong>";
       expect(convertToHTMLString(string)).toBe(expected);
-    })
+    });
     test("**aaa**bbb__ccc__が正しく出力される", () => {
       const string = "**aaa**bbb__ccc__";
       const expected = "<strong>aaa</strong>bbb<i>ccc</i>";
       expect(convertToHTMLString(string)).toBe(expected);
-    })
+    });
     test("__aaa__bbb__ccc__が正しく出力される", () => {
       const string = "__aaa__bbb__ccc__";
       const expected = "<i>aaa</i>bbb<i>ccc</i>";
       expect(convertToHTMLString(string)).toBe(expected);
-    })
-  })
+    });
+  });
 
   describe("strike", () => {
     test("~~text~~がstrike要素として出力される", () => {
       const string = "~~text~~";
       const expected = "<strike>text</strike>";
       expect(convertToHTMLString(string)).toBe(expected);
-    })
-  })
+    });
+  });
+
+  describe("h1", () => {
+    test(" # textがh1要素として出力される", () => {
+      const string = " # text";
+      const expected = "<h1>text</h1>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test(" # text1\n # text2がh1要素として出力される", () => {
+      const string = " # text1\n # text2";
+      const expected = "<h1>text1</h1><h1>text2</h1>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+  });
 
   describe("list", () => {
     // list
@@ -55,7 +69,7 @@ describe("convertToHTMLString", () => {
 - list1
 - list2
 - list3
-`
+`;
       const expected = "<ul><li>list1</li><li>list2</li><li>list3</li></ul>";
       expect(convertToHTMLString(string)).toBe(expected);
     });

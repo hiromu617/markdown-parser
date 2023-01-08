@@ -1,7 +1,9 @@
 import {
   getInlineElmMatchResult,
+  getBlockElmMatchResult,
   matchWithListRegxp,
   isMatchWithListRegxp,
+  isMatchWithH1Regxp,
   genToken,
   detectFirstInlineElement,
 } from "./lexer";
@@ -15,8 +17,12 @@ const rootToken = genToken({ type: "root" });
  */
 export const parse = (markdownRow: string) => {
   const isListMatch = isMatchWithListRegxp(markdownRow);
+  const isH1Match = isMatchWithH1Regxp(markdownRow);
   if (isListMatch) {
     return _tokenizeList(markdownRow);
+  }
+  if (isH1Match) {
+    return _tokenizeBlock(markdownRow);
   }
   return _tokenizeText(markdownRow);
 };
@@ -136,5 +142,26 @@ const _tokenizeList = (listString: string): Token[] => {
       const listText: Token[] = _tokenizeText(restString, listToken);
       tokens.push(...listText);
     });
+  return tokens;
+};
+
+/**
+ * 行頭がh1の時、Tokenの配列を返す
+ */
+const _tokenizeBlock = (markdownRow: string): Token[] => {
+  const tokens: Token[] = [rootToken];
+  const { restString } = getBlockElmMatchResult("h1", markdownRow);
+  assertExists(restString);
+
+  const h1Token = genToken({ type: "h1", parent: rootToken });
+  tokens.push(h1Token);
+
+  const textToken = genToken({
+    type: "text",
+    parent: h1Token,
+    content: restString,
+  });
+  tokens.push(textToken);
+
   return tokens;
 };
