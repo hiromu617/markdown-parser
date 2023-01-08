@@ -37,85 +37,89 @@ const _tokenizeText = (
   initialRoot: Token = rootToken
 ): Token[] => {
   const tokens: Token[] = [];
-  let parent: Token = initialRoot;
 
-  const _tokenize = (originalText: string, p: Token) => {
-    let processingText = originalText;
-    parent = p;
+  return _tokenize(textElement, initialRoot, tokens);
+};
 
-    while (processingText.length !== 0) {
-      const isStrongMatch = isMatchWithStrongRegxp(processingText);
-      const isItalicMatch = isMatchWithItalicRegxp(processingText);
+const _tokenize = (
+  originalText: string,
+  initialParent: Token,
+  tokens: Token[]
+): Token[] => {
+  let processingText = originalText;
+  let parent = initialParent;
 
-      const isOnlyText = !isStrongMatch && !isItalicMatch;
+  while (processingText.length !== 0) {
+    const isStrongMatch = isMatchWithStrongRegxp(processingText);
+    const isItalicMatch = isMatchWithItalicRegxp(processingText);
 
-      if (isOnlyText) {
-        const onlyText = genTextElement(processingText, parent);
-        processingText = "";
-        tokens.push(onlyText);
-        return;
-      }
+    const isOnlyText = !isStrongMatch && !isItalicMatch;
 
-      const {
-        index: italicIndex,
-        matchString: italicMatchString,
-        inner: italicInner,
-      } = matchWithItalicRegxp(processingText);
-      const {
-        index: strongIndex,
-        matchString: strongMatchString,
-        inner: strongInner,
-      } = matchWithStrongRegxp(processingText);
-
-      if (isItalicMatch && (italicIndex ?? 9999) < (strongIndex ?? 9999)) {
-        assertExists(italicIndex);
-        assertExists(italicMatchString);
-        assertExists(italicInner);
-
-        if (italicIndex > 0) {
-          const text = processingText.substring(0, italicIndex);
-          const textElm = genTextElement(text, parent);
-          tokens.push(textElm);
-          processingText = processingText.replace(text, ""); // 処理中のテキストからトークンにしたテキストを削除する
-        }
-
-        const elm = genItalicElement(parent);
-
-        parent = elm;
-        tokens.push(elm);
-
-        processingText = processingText.replace(italicMatchString, "");
-
-        _tokenize(italicInner, parent);
-        parent = p;
-      }
-
-      if (isStrongMatch && (strongIndex ?? 9999) < (italicIndex ?? 9999)) {
-        assertExists(strongIndex);
-        assertExists(strongMatchString);
-        assertExists(strongInner);
-        // Text + Tokenの時, TEXTを取り除く
-        // ex) "aaa**bb**cc" -> TEXT Token + "**bb**cc" にする
-        if (strongIndex > 0) {
-          const text = processingText.substring(0, strongIndex);
-          const textElm = genTextElement(text, parent);
-          tokens.push(textElm);
-          processingText = processingText.replace(text, ""); // 処理中のテキストからトークンにしたテキストを削除する
-        }
-
-        const elm = genStrongElement(parent);
-
-        parent = elm;
-        tokens.push(elm);
-
-        processingText = processingText.replace(strongMatchString, "");
-
-        _tokenize(strongInner, parent);
-        parent = p;
-      }
+    if (isOnlyText) {
+      const onlyText = genTextElement(processingText, parent);
+      processingText = "";
+      tokens.push(onlyText);
+      return tokens;
     }
-  };
-  _tokenize(textElement, parent);
+
+    const {
+      index: italicIndex,
+      matchString: italicMatchString,
+      inner: italicInner,
+    } = matchWithItalicRegxp(processingText);
+    const {
+      index: strongIndex,
+      matchString: strongMatchString,
+      inner: strongInner,
+    } = matchWithStrongRegxp(processingText);
+
+    if (isItalicMatch && (italicIndex ?? 9999) < (strongIndex ?? 9999)) {
+      assertExists(italicIndex);
+      assertExists(italicMatchString);
+      assertExists(italicInner);
+
+      if (italicIndex > 0) {
+        const text = processingText.substring(0, italicIndex);
+        const textElm = genTextElement(text, parent);
+        tokens.push(textElm);
+        processingText = processingText.replace(text, ""); // 処理中のテキストからトークンにしたテキストを削除する
+      }
+
+      const elm = genItalicElement(parent);
+
+      parent = elm;
+      tokens.push(elm);
+
+      processingText = processingText.replace(italicMatchString, "");
+
+      _tokenize(italicInner, parent, tokens);
+      parent = initialParent;
+    }
+
+    if (isStrongMatch && (strongIndex ?? 9999) < (italicIndex ?? 9999)) {
+      assertExists(strongIndex);
+      assertExists(strongMatchString);
+      assertExists(strongInner);
+      // Text + Tokenの時, TEXTを取り除く
+      // ex) "aaa**bb**cc" -> TEXT Token + "**bb**cc" にする
+      if (strongIndex > 0) {
+        const text = processingText.substring(0, strongIndex);
+        const textElm = genTextElement(text, parent);
+        tokens.push(textElm);
+        processingText = processingText.replace(text, ""); // 処理中のテキストからトークンにしたテキストを削除する
+      }
+
+      const elm = genStrongElement(parent);
+
+      parent = elm;
+      tokens.push(elm);
+
+      processingText = processingText.replace(strongMatchString, "");
+
+      _tokenize(strongInner, parent, tokens);
+      parent = initialParent;
+    }
+  }
   return tokens;
 };
 
