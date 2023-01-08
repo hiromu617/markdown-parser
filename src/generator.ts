@@ -40,6 +40,9 @@ const _createMergedContent = (
     case "italic":
       content = `<i>${currentToken.content}</i>`;
       break;
+    case "strike":
+      content = `<strike>${currentToken.content}</strike>`;
+      break;
     case "merged":
       const position = _getInsertPosition(parentToken.content);
 

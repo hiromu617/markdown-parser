@@ -1,6 +1,5 @@
 import {
-  matchWithStrongRegxp,
-  matchWithItalicRegxp,
+  getInlineElmMatchResult,
   matchWithListRegxp,
   isMatchWithListRegxp,
   genToken,
@@ -87,12 +86,7 @@ const processInlineElm = (
   tokens: Token[],
   inlineElmType: InlineElmType
 ) => {
-  let matchResult: ReturnType<typeof matchWithItalicRegxp>;
-  if (inlineElmType === "italic") {
-    matchResult = matchWithItalicRegxp(processingText);
-  } else {
-    matchResult = matchWithStrongRegxp(processingText);
-  }
+  const matchResult = getInlineElmMatchResult(inlineElmType, processingText);
 
   assertExists(matchResult.index);
   assertExists(matchResult.matchString);

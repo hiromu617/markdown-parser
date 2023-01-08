@@ -40,6 +40,14 @@ describe("convertToHTMLString", () => {
     })
   })
 
+  describe("strike", () => {
+    test("~~text~~がstrike要素として出力される", () => {
+      const string = "~~text~~";
+      const expected = "<strike>text</strike>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    })
+  })
+
   describe("list", () => {
     // list
     test(" - list1\n - list2\n - list3がlist要素として出力される", () => {

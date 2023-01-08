@@ -3,6 +3,7 @@ import { assertExists } from "./utils/assert";
 
 const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
 const ITALIC_ELM_REGXP = /__(.*?)__/;
+const STRIKE_ELM_REGXP = /~~(.*?)~~/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
 
 /**
@@ -83,19 +84,25 @@ export const genToken = (
   }
 };
 
-export const matchWithStrongRegxp = (text: string) => {
-  const match = text.match(STRONG_ELM_REGXP);
-  const index = match?.index;
-  const matchString = match?.[0];
-  const inner = match?.[1];
-  return { index, matchString, inner };
-};
+export const getInlineElmMatchResult = (type: InlineElmType, text: string) => {
+  let matchResult: RegExpMatchArray | undefined;
+  switch (type) {
+    case "strong":
+      matchResult = text.match(STRONG_ELM_REGXP) ?? undefined;
+      break;
+    case "italic":
+      matchResult = text.match(ITALIC_ELM_REGXP) ?? undefined;
+      break;
+    case "strike":
+      matchResult = text.match(STRIKE_ELM_REGXP) ?? undefined;
+      break;
+    default:
+      const _: never = type;
+  }
 
-export const matchWithItalicRegxp = (text: string) => {
-  const match = text.match(ITALIC_ELM_REGXP);
-  const index = match?.index;
-  const matchString = match?.[0];
-  const inner = match?.[1];
+  const index = matchResult?.index;
+  const matchString = matchResult?.[0];
+  const inner = matchResult?.[1];
   return { index, matchString, inner };
 };
 
@@ -114,12 +121,20 @@ export const detectFirstInlineElement = (
 ): InlineElmType | "none" => {
   const italicMatchResult = text.match(ITALIC_ELM_REGXP);
   const strongMatchResult = text.match(STRONG_ELM_REGXP);
+  const strikeMatchResult = text.match(STRIKE_ELM_REGXP);
+
+  if (!italicMatchResult && !strongMatchResult && !strikeMatchResult)
+    return "none";
 
   const italicIndex = italicMatchResult?.index ?? Infinity;
   const strongIndex = strongMatchResult?.index ?? Infinity;
+  const strikeIndex = strikeMatchResult?.index ?? Infinity;
 
-  if (italicIndex < strongIndex) return "italic";
-  if (strongIndex < italicIndex) return "strong";
+  const minIndex = Math.min(italicIndex, strongIndex, strikeIndex);
+
+  if (minIndex === italicIndex) return "italic";
+  if (minIndex === strongIndex) return "strong";
+  if (minIndex === strikeIndex) return "strike";
 
   return "none";
 };
