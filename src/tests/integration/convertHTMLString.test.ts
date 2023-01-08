@@ -75,8 +75,9 @@ describe("convertToHTMLString", () => {
     });
   });
 
-  test("複雑なマークダウンの時、正しくHTMLが生成される", () => {
-    const string = `
+  describe("", () => {
+    test("複雑なマークダウンの時、正しくHTMLが生成される", () => {
+      const string = `
 normal text
 
 - list1
@@ -84,12 +85,14 @@ normal text
 - list3
 
 normal
+ # heading
 
 - **aaa**
 - bbb
-`;
-    const expected =
-      "normal text<ul><li>list1</li><li>list2</li><li>list3</li></ul>normal<ul><li><strong>aaa</strong></li><li>bbb</li></ul>";
-    expect(convertToHTMLString(string)).toBe(expected);
+  `;
+      const expected =
+        "normal text<ul><li>list1</li><li>list2</li><li>list3</li></ul>normal<h1>heading</h1><ul><li><strong>aaa</strong></li><li>bbb</li></ul>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
   });
 });

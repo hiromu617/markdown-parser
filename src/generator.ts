@@ -80,27 +80,28 @@ export const generate = (asts: Token[][]) => {
         if (rearrangedAst[index].parent?.elmType === "root") {
           // Rootにあるトークンの場合何もしない。
           index++;
-        } else {
-          const currentToken = rearrangedAst[index];
-
-          rearrangedAst = rearrangedAst.filter((_, t) => t !== index); // Remove current token
-          const parentIndex = rearrangedAst.findIndex(
-            (t) => t.id === currentToken.parent.id
-          );
-          const parentToken = rearrangedAst[parentIndex];
-          if (!parentToken) break;
-
-          const mergedToken: MergedToken = {
-            id: parentToken.id,
-            elmType: "merged",
-            content: _createMergedContent(currentToken, parentToken),
-            parent: parentToken.parent,
-          };
-          rearrangedAst.splice(parentIndex, 1, mergedToken);
-          // parentとマージする。
-          // つまり2つ変更する。子は削除。親は置き換え。
-          // 1つ親と合成したら1つ要素を消す。のでindexは変わらず。なのでマージしない時のみindex++する。
+          continue;
         }
+
+        const currentToken = rearrangedAst[index];
+
+        rearrangedAst = rearrangedAst.filter((_, t) => t !== index); // Remove current token
+        const parentIndex = rearrangedAst.findIndex(
+          (t) => t.id === currentToken.parent.id
+        );
+        const parentToken = rearrangedAst[parentIndex];
+        if (!parentToken) break;
+
+        const mergedToken: MergedToken = {
+          id: parentToken.id,
+          elmType: "merged",
+          content: _createMergedContent(currentToken, parentToken),
+          parent: parentToken.parent,
+        };
+        rearrangedAst.splice(parentIndex, 1, mergedToken);
+        // parentとマージする。
+        // つまり2つ変更する。子は削除。親は置き換え。
+        // 1つ親と合成したら1つ要素を消す。のでindexは変わらず。なのでマージしない時のみindex++する。
       }
     }
     return _generateHTMLString(rearrangedAst);
