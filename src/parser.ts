@@ -18,13 +18,17 @@ const rootToken: Token = {
  * マークダウンの１行からASTを生成する
  */
 export const parse = (markdownRow: string) => {
-  const { isMatch } = matchWithListRegxp(markdownRow);
-  if (isMatch) {
+  const { isMatch: isListMatch } = matchWithListRegxp(markdownRow);
+  if (isListMatch) {
     return _tokenizeList(markdownRow);
   }
   return _tokenizeText(markdownRow);
 };
 
+/**
+ * テキストのAST生成
+ * 再帰的にテキスト内のインライン要素をToken化してTokenの配列を返す
+ */
 const _tokenizeText = (
   textElement: string,
   initialId: number = 0,
@@ -87,6 +91,9 @@ const _tokenizeText = (
   return tokens;
 };
 
+/**
+ * 行頭がlistの時、Tokenの配列を返す
+ */
 const _tokenizeList = (listString: string): Token[] => {
   let id = 1;
   const rootUlToken: Token = {
