@@ -1,7 +1,7 @@
 import {
   getInlineElmMatchResult,
   getBlockElmMatchResult,
-  matchWithListRegxp,
+  getListElmMatchResult,
   isMatchWithListRegxp,
   getBlockElmType,
   genToken,
@@ -135,7 +135,7 @@ const _tokenizeList = (listString: string): Token[] => {
     .split(/\r\n|\r|\n/)
     .filter(Boolean)
     .forEach((l) => {
-      const { restString } = matchWithListRegxp(l);
+      const { restString } = getListElmMatchResult(l);
       assertExists(restString);
 
       const listToken = genToken({ type: "li", parent: rootUlToken });

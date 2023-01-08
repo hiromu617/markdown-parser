@@ -132,7 +132,7 @@ export const getBlockElmMatchResult = (type: BlockElmType, text: string) => {
   return { restString };
 };
 
-export const matchWithListRegxp = (text: string) => {
+export const getListElmMatchResult = (text: string) => {
   const match = text.match(LIST_REGEXP);
   const restString = match?.[3];
   return { restString };
