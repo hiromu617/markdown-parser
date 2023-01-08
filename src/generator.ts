@@ -54,7 +54,7 @@ const _generateHTMLString = (tokens: Array<Token | MergedToken>) => {
     .join("");
 };
 
-const generate = (asts: Token[][]) => {
+export const generate = (asts: Token[][]) => {
   const htmlStrings = asts.map((lineTokens) => {
     let rearrangedAst: Array<Token | MergedToken> = lineTokens.reverse();
     // すべてのトークンがRootの下に付くまでマージを繰り返す
@@ -88,5 +88,3 @@ const generate = (asts: Token[][]) => {
   });
   return htmlStrings.join("");
 };
-
-export { generate };

@@ -1,6 +1,9 @@
 import {
+  isMatchWithStrongRegxp,
   matchWithStrongRegxp,
+  matchWithItalicRegxp,
   matchWithListRegxp,
+  isMatchWithListRegxp,
   genStrongElement,
   genTextElement,
 } from "./lexer";
@@ -18,7 +21,7 @@ const rootToken: Token = {
  * マークダウンの１行からASTを生成する
  */
 export const parse = (markdownRow: string) => {
-  const { isMatch: isListMatch } = matchWithListRegxp(markdownRow);
+  const isListMatch = isMatchWithListRegxp(markdownRow);
   if (isListMatch) {
     return _tokenizeList(markdownRow);
   }
@@ -44,15 +47,10 @@ const _tokenizeText = (
     parent = p;
 
     while (processingText.length !== 0) {
-      const {
-        isMatch: isStrongMatch,
-        index,
-        matchString,
-        inner,
-      } = matchWithStrongRegxp(processingText);
+      const isStrongMatch = isMatchWithStrongRegxp(processingText);
+      const isOnlyText = !isStrongMatch;
 
-      // Textのみの時
-      if (!isStrongMatch) {
+      if (isOnlyText) {
         id += 1;
         const onlyText = genTextElement(id, processingText, parent);
         processingText = "";
@@ -61,9 +59,8 @@ const _tokenizeText = (
       }
 
       if (isStrongMatch) {
-        assertExists(index);
-        assertExists(matchString);
-        assertExists(inner);
+        const { index, matchString, inner } =
+          matchWithStrongRegxp(processingText);
         // Text + Tokenの時, TEXTを取り除く
         // ex) "aaa**bb**cc" -> TEXT Token + "**bb**cc" にする
         if (index > 0) {

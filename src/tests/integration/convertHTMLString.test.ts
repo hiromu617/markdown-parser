@@ -17,6 +17,14 @@ describe("convertToHTMLString", () => {
     });
   });
 
+  describe("italic", () => {
+    test("__text__がi要素として出力される", () => {
+      const string = "__text__";
+      const expected = "<i>text</i>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    })
+  })
+
   describe("list", () => {
     // list
     test(" - list1\n - list2\n - list3がlist要素として出力される", () => {

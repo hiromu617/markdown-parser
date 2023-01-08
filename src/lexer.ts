@@ -1,14 +1,15 @@
 import { Token } from "./models/token";
-import { exists } from "./utils/assert";
+import { exists, assertExists } from "./utils/assert";
 
 const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
+const ITALIC_ELM_REGXP = /__(.*?)__/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
 
 /**
  * 1行ごとの文字列の配列を返す
  * ただし、listは一つの要素にまとめられる
  */
-const analize = (markdown: string) => {
+export const analize = (markdown: string) => {
   let state: "neutral_state" | "list_state" = "neutral_state";
 
   let lists = "";
@@ -45,7 +46,11 @@ const analize = (markdown: string) => {
   return mdArray;
 };
 
-const genTextElement = (id: number, text: string, parent: Token): Token => {
+export const genTextElement = (
+  id: number,
+  text: string,
+  parent: Token
+): Token => {
   return {
     id,
     elmType: "text",
@@ -54,7 +59,11 @@ const genTextElement = (id: number, text: string, parent: Token): Token => {
   };
 };
 
-const genStrongElement = (id: number, text: string, parent: Token): Token => {
+export const genStrongElement = (
+  id: number,
+  text: string,
+  parent: Token
+): Token => {
   return {
     id,
     elmType: "strong",
@@ -63,8 +72,22 @@ const genStrongElement = (id: number, text: string, parent: Token): Token => {
   };
 };
 
-const matchWithStrongRegxp = (text: string) => {
+export const matchWithStrongRegxp = (text: string) => {
   const match = text.match(STRONG_ELM_REGXP);
+  assertExists(match);
+  assertExists(match.index);
+  const index = match.index;
+  const matchString = match[0];
+  const inner = match[1];
+  return { index, matchString, inner };
+};
+
+export const isMatchWithStrongRegxp = (text: string): boolean => {
+  return !!text.match(STRONG_ELM_REGXP);
+};
+
+export const matchWithItalicRegxp = (text: string) => {
+  const match = text.match(ITALIC_ELM_REGXP);
   const isMatch = !!match;
   const index = match?.index;
   const matchString = exists(match) ? match[0] : undefined;
@@ -72,17 +95,13 @@ const matchWithStrongRegxp = (text: string) => {
   return { isMatch, index, matchString, inner };
 };
 
-const matchWithListRegxp = (text: string) => {
+export const matchWithListRegxp = (text: string) => {
   const match = text.match(LIST_REGEXP);
-  const isMatch = !!match;
-  const restString = exists(match) ? match[3] : undefined;
-  return { isMatch, restString };
+  assertExists(match);
+  const restString = match[3];
+  return { restString };
 };
 
-export {
-  analize,
-  genTextElement,
-  genStrongElement,
-  matchWithStrongRegxp,
-  matchWithListRegxp,
+export const isMatchWithListRegxp = (text: string): boolean => {
+  return !!text.match(LIST_REGEXP);
 };
