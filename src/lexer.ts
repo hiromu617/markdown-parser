@@ -4,10 +4,10 @@ const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
 const ITALIC_ELM_REGXP = /__(.*?)__/;
 const STRIKE_ELM_REGXP = /~~(.*?)~~/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
-const H1_REGEXP = /^( # (.+))$/m;
-const H2_REGEXP = /^( ## (.+))$/m;
-const H3_REGEXP = /^( ### (.+))$/m;
-const H4_REGEXP = /^( #### (.+))$/m;
+const H1_REGEXP = /^(# (.+))$/m;
+const H2_REGEXP = /^(## (.+))$/m;
+const H3_REGEXP = /^(### (.+))$/m;
+const H4_REGEXP = /^(#### (.+))$/m;
 
 /**
  * 1行ごとの文字列の配列を返す
