@@ -1,4 +1,5 @@
-import { Token, InlineElmType } from "./models/token";
+import { Token, InlineElmType, ElmType } from "./models/token";
+import { assertExists } from "./utils/assert";
 
 const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
 const ITALIC_ELM_REGXP = /__(.*?)__/;
@@ -47,64 +48,39 @@ export const analize = (markdown: string) => {
 
 let id = 0;
 
-export const genRootElement = (): Token => {
+export const genToken = (
+  args:
+    | {
+        type: Exclude<ElmType, "root" | "text">;
+        parent: Token;
+      }
+    | { type: "root" }
+    | { type: "text"; content: string; parent: Token }
+): Token => {
   id += 1;
-  return {
-    id: 0,
-    elmType: "root",
-    content: "",
-    parent: {} as Token,
-  };
-};
-
-export const genTextElement = (text: string, parent: Token): Token => {
-  id += 1;
-  return {
-    id,
-    elmType: "text",
-    content: text,
-    parent,
-  };
-};
-
-export const genStrongElement = (parent: Token): Token => {
-  id += 1;
-  return {
-    id,
-    elmType: "strong",
-    content: "",
-    parent,
-  };
-};
-
-export const genItalicElement = (parent: Token): Token => {
-  id += 1;
-  return {
-    id,
-    elmType: "italic",
-    content: "",
-    parent,
-  };
-};
-
-export const genUlElement = (parent: Token): Token => {
-  id += 1;
-  return {
-    id,
-    elmType: "ul",
-    content: "",
-    parent,
-  };
-};
-
-export const genLiElement = (parent: Token): Token => {
-  id += 1;
-  return {
-    id,
-    elmType: "li",
-    content: "",
-    parent,
-  };
+  switch (args.type) {
+    case "root":
+      return {
+        id: 0,
+        elmType: "root",
+        content: "",
+        parent: {} as Token,
+      };
+    case "text":
+      return {
+        id,
+        elmType: "text",
+        content: args.content,
+        parent: args.parent,
+      };
+    default:
+      return {
+        id,
+        elmType: args.type,
+        content: "",
+        parent: args.parent,
+      };
+  }
 };
 
 export const matchWithStrongRegxp = (text: string) => {

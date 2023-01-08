@@ -3,18 +3,13 @@ import {
   matchWithItalicRegxp,
   matchWithListRegxp,
   isMatchWithListRegxp,
-  genStrongElement,
-  genItalicElement,
-  genTextElement,
-  genRootElement,
-  genUlElement,
-  genLiElement,
+  genToken,
   detectFirstInlineElement,
 } from "./lexer";
 import { Token, InlineElmType } from "./models/token";
 import { assertExists } from "./utils/assert";
 
-const rootToken = genRootElement();
+const rootToken = genToken({ type: "root" });
 
 /**
  * マークダウンの１行からASTを生成する
@@ -53,9 +48,13 @@ const _tokenize = (
     const isOnlyText = firstInlineElmType === "none";
 
     if (isOnlyText) {
-      const onlyText = genTextElement(processingText, parent);
+      const textToken = genToken({
+        type: "text",
+        content: processingText,
+        parent,
+      });
       processingText = "";
-      tokens.push(onlyText);
+      tokens.push(textToken);
       break;
     }
 
@@ -98,18 +97,13 @@ const processInlineElm = (
   // Text + Tokenの時, TEXTを取り除く
   // ex) "aaa**bb**cc" -> TEXT Token + "**bb**cc" にする
   if (index > 0) {
-    const text = processingText.substring(0, index);
-    const textElm = genTextElement(text, parent);
+    const content = processingText.substring(0, index);
+    const textElm = genToken({ type: "text", content, parent });
     tokens.push(textElm);
-    processingText = processingText.replace(text, "");
+    processingText = processingText.replace(content, "");
   }
 
-  let elm: Token;
-  if (firstInlineElmType === "italic") {
-    elm = genItalicElement(parent);
-  } else {
-    elm = genStrongElement(parent);
-  }
+  const elm = genToken({ type: firstInlineElmType, parent });
 
   parent = elm;
   processingText = processingText.replace(matchString, "");
@@ -127,7 +121,7 @@ const processInlineElm = (
  * 行頭がlistの時、Tokenの配列を返す
  */
 const _tokenizeList = (listString: string): Token[] => {
-  const rootUlToken = genUlElement(rootToken);
+  const rootUlToken = genToken({ type: "ul", parent: rootToken });
   const tokens: Token[] = [rootUlToken];
 
   listString
@@ -137,7 +131,7 @@ const _tokenizeList = (listString: string): Token[] => {
       const { restString } = matchWithListRegxp(l);
       assertExists(restString);
 
-      const listToken = genLiElement(rootUlToken);
+      const listToken = genToken({ type: "li", parent: rootUlToken });
       tokens.push(listToken);
       const listText: Token[] = _tokenizeText(restString, listToken);
       tokens.push(...listText);

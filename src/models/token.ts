@@ -1,4 +1,4 @@
-type ElmType = "root" | "text" | "strong" | "ul" | "li" | "italic";
+export type ElmType = "root" | "text" | "strong" | "ul" | "li" | "italic";
 
 export type InlineElmType = Extract<ElmType, "strong" | "italic">;
 
