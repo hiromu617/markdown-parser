@@ -1,4 +1,5 @@
 import { Token } from "./models/token";
+import { exists } from "./utils/assert";
 
 const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
@@ -63,11 +64,19 @@ const genStrongElement = (id: number, text: string, parent: Token): Token => {
 };
 
 const matchWithStrongRegxp = (text: string) => {
-  return text.match(STRONG_ELM_REGXP);
+  const match = text.match(STRONG_ELM_REGXP);
+  const isMatch = !!match;
+  const index = match?.index;
+  const matchString = exists(match) ? match[0] : undefined;
+  const inner = exists(match) ? match[1] : undefined;
+  return { isMatch, index, matchString, inner };
 };
 
 const matchWithListRegxp = (text: string) => {
-  return text.match(LIST_REGEXP);
+  const match = text.match(LIST_REGEXP);
+  const isMatch = !!match;
+  const restString = exists(match) ? match[3] : undefined;
+  return { isMatch, restString };
 };
 
 export {
