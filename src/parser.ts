@@ -85,10 +85,10 @@ const processInlineElm = (
   processingText: string,
   parent: Token,
   tokens: Token[],
-  firstInlineElmType: InlineElmType
+  inlineElmType: InlineElmType
 ) => {
   let matchResult: ReturnType<typeof matchWithItalicRegxp>;
-  if (firstInlineElmType === "italic") {
+  if (inlineElmType === "italic") {
     matchResult = matchWithItalicRegxp(processingText);
   } else {
     matchResult = matchWithStrongRegxp(processingText);
@@ -109,7 +109,7 @@ const processInlineElm = (
     processingText = processingText.replace(content, "");
   }
 
-  const elm = genToken({ type: firstInlineElmType, parent });
+  const elm = genToken({ type: inlineElmType, parent });
 
   parent = elm;
   processingText = processingText.replace(matchString, "");
