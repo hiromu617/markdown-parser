@@ -5,6 +5,9 @@ const ITALIC_ELM_REGXP = /__(.*?)__/;
 const STRIKE_ELM_REGXP = /~~(.*?)~~/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
 const H1_REGEXP = /^( # (.+))$/m;
+const H2_REGEXP = /^( ## (.+))$/m;
+const H3_REGEXP = /^( ### (.+))$/m;
+const H4_REGEXP = /^( #### (.+))$/m;
 
 /**
  * 1行ごとの文字列の配列を返す
@@ -112,6 +115,15 @@ export const getBlockElmMatchResult = (type: BlockElmType, text: string) => {
     case "h1":
       matchResult = text.match(H1_REGEXP) ?? undefined;
       break;
+    case "h2":
+      matchResult = text.match(H2_REGEXP) ?? undefined;
+      break;
+    case "h3":
+      matchResult = text.match(H3_REGEXP) ?? undefined;
+      break;
+    case "h4":
+      matchResult = text.match(H4_REGEXP) ?? undefined;
+      break;
     default:
       const _: never = type;
   }
@@ -130,8 +142,12 @@ export const isMatchWithListRegxp = (text: string): boolean => {
   return !!text.match(LIST_REGEXP);
 };
 
-export const isMatchWithH1Regxp = (text: string): boolean => {
-  return !!text.match(H1_REGEXP);
+export const getBlockElmType = (text: string): BlockElmType | "none" => {
+  if (!!text.match(H1_REGEXP)) return "h1";
+  if (!!text.match(H2_REGEXP)) return "h2";
+  if (!!text.match(H3_REGEXP)) return "h3";
+  if (!!text.match(H4_REGEXP)) return "h4";
+  return "none";
 };
 
 export const detectFirstInlineElement = (

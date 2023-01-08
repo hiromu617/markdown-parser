@@ -48,16 +48,33 @@ describe("convertToHTMLString", () => {
     });
   });
 
-  describe("h1", () => {
+  describe("heading", () => {
     test(" # textがh1要素として出力される", () => {
       const string = " # text";
       const expected = "<h1>text</h1>";
       expect(convertToHTMLString(string)).toBe(expected);
     });
 
-    test(" # text1\n # text2がh1要素として出力される", () => {
-      const string = " # text1\n # text2";
-      const expected = "<h1>text1</h1><h1>text2</h1>";
+    test(" # textがh2要素として出力される", () => {
+      const string = " ## text";
+      const expected = "<h2>text</h2>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test(" # textがh3要素として出力される", () => {
+      const string = " ### text";
+      const expected = "<h3>text</h3>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+    test(" # textがh4要素として出力される", () => {
+      const string = " #### text";
+      const expected = "<h4>text</h4>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test(" # text1\n ## text2が正しく出力される", () => {
+      const string = " # text1\n ## text2";
+      const expected = "<h1>text1</h1><h2>text2</h2>";
       expect(convertToHTMLString(string)).toBe(expected);
     });
   });

@@ -3,11 +3,11 @@ import {
   getBlockElmMatchResult,
   matchWithListRegxp,
   isMatchWithListRegxp,
-  isMatchWithH1Regxp,
+  getBlockElmType,
   genToken,
   detectFirstInlineElement,
 } from "./lexer";
-import { Token, InlineElmType } from "./models/token";
+import { Token, InlineElmType, BlockElmType } from "./models/token";
 import { assertExists } from "./utils/assert";
 
 const rootToken = genToken({ type: "root" });
@@ -17,12 +17,13 @@ const rootToken = genToken({ type: "root" });
  */
 export const parse = (markdownRow: string) => {
   const isListMatch = isMatchWithListRegxp(markdownRow);
-  const isH1Match = isMatchWithH1Regxp(markdownRow);
+  const blockElmType = getBlockElmType(markdownRow);
+
   if (isListMatch) {
     return _tokenizeList(markdownRow);
   }
-  if (isH1Match) {
-    return _tokenizeBlock(markdownRow);
+  if (blockElmType !== "none") {
+    return _tokenizeBlock(markdownRow, blockElmType);
   }
   return _tokenizeText(markdownRow);
 };
@@ -146,19 +147,22 @@ const _tokenizeList = (listString: string): Token[] => {
 };
 
 /**
- * 行頭がh1の時、Tokenの配列を返す
+ * 行頭がブロック要素の時、Tokenの配列を返す
  */
-const _tokenizeBlock = (markdownRow: string): Token[] => {
+const _tokenizeBlock = (
+  markdownRow: string,
+  blockElmType: BlockElmType
+): Token[] => {
   const tokens: Token[] = [rootToken];
-  const { restString } = getBlockElmMatchResult("h1", markdownRow);
+  const { restString } = getBlockElmMatchResult(blockElmType, markdownRow);
   assertExists(restString);
 
-  const h1Token = genToken({ type: "h1", parent: rootToken });
-  tokens.push(h1Token);
+  const blockToken = genToken({ type: blockElmType, parent: rootToken });
+  tokens.push(blockToken);
 
   const textToken = genToken({
     type: "text",
-    parent: h1Token,
+    parent: blockToken,
     content: restString,
   });
   tokens.push(textToken);
