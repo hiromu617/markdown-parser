@@ -72,6 +72,19 @@ export const genStrongElement = (
   };
 };
 
+export const genItalicElement = (
+  id: number,
+  text: string,
+  parent: Token
+): Token => {
+  return {
+    id,
+    elmType: "italic",
+    content: "",
+    parent,
+  };
+};
+
 export const matchWithStrongRegxp = (text: string) => {
   const match = text.match(STRONG_ELM_REGXP);
   assertExists(match);
@@ -88,11 +101,16 @@ export const isMatchWithStrongRegxp = (text: string): boolean => {
 
 export const matchWithItalicRegxp = (text: string) => {
   const match = text.match(ITALIC_ELM_REGXP);
-  const isMatch = !!match;
-  const index = match?.index;
-  const matchString = exists(match) ? match[0] : undefined;
-  const inner = exists(match) ? match[1] : undefined;
-  return { isMatch, index, matchString, inner };
+  assertExists(match);
+  assertExists(match.index);
+  const index = match.index;
+  const matchString = match[0];
+  const inner = match[1];
+  return { index, matchString, inner };
+};
+
+export const isMatchWithItalicRegxp = (text: string): boolean => {
+  return !!text.match(ITALIC_ELM_REGXP);
 };
 
 export const matchWithListRegxp = (text: string) => {

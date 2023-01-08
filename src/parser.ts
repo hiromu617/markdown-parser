@@ -1,10 +1,12 @@
 import {
   isMatchWithStrongRegxp,
   matchWithStrongRegxp,
+  isMatchWithItalicRegxp,
   matchWithItalicRegxp,
   matchWithListRegxp,
   isMatchWithListRegxp,
   genStrongElement,
+  genItalicElement,
   genTextElement,
 } from "./lexer";
 import { Token } from "./models/token";
@@ -48,7 +50,9 @@ const _tokenizeText = (
 
     while (processingText.length !== 0) {
       const isStrongMatch = isMatchWithStrongRegxp(processingText);
-      const isOnlyText = !isStrongMatch;
+      const isItalicMatch = isMatchWithItalicRegxp(processingText);
+
+      const isOnlyText = !isStrongMatch && !isItalicMatch;
 
       if (isOnlyText) {
         id += 1;
@@ -56,6 +60,30 @@ const _tokenizeText = (
         processingText = "";
         tokens.push(onlyText);
         return;
+      }
+
+      if (isItalicMatch) {
+        const { index, matchString, inner } =
+          matchWithItalicRegxp(processingText);
+
+        if (index > 0) {
+          const text = processingText.substring(0, index);
+          id += 1;
+          const textElm = genTextElement(id, text, parent);
+          tokens.push(textElm);
+          processingText = processingText.replace(text, ""); // 処理中のテキストからトークンにしたテキストを削除する
+        }
+
+        id += 1;
+        const elm = genItalicElement(id, "", parent);
+
+        parent = elm;
+        tokens.push(elm);
+
+        processingText = processingText.replace(matchString, "");
+
+        _tokenize(inner, parent);
+        parent = p;
       }
 
       if (isStrongMatch) {

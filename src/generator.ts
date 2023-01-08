@@ -37,12 +37,22 @@ const _createMergedContent = (
     case "strong":
       content = `<strong>${currentToken.content}</strong>`;
       break;
+    case "italic":
+      content = `<i>${currentToken.content}</i>`;
+      break;
     case "merged":
       const position = _getInsertPosition(parentToken.content);
 
       content = `${parentToken.content.slice(0, position)}${
         currentToken.content
       }${parentToken.content.slice(position)}`;
+    case "root":
+      break;
+    case "text":
+      break;
+    default:
+      const _: never = parentToken;
+      throw new Error();
   }
   return content;
 };
