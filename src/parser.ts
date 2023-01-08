@@ -62,12 +62,24 @@ const _tokenizeText = (
         return;
       }
 
-      if (isItalicMatch) {
-        const { index, matchString, inner } =
-          matchWithItalicRegxp(processingText);
+      const {
+        index: italicIndex,
+        matchString: italicMatchString,
+        inner: italicInner,
+      } = matchWithItalicRegxp(processingText);
+      const {
+        index: strongIndex,
+        matchString: strongMatchString,
+        inner: strongInner,
+      } = matchWithStrongRegxp(processingText);
 
-        if (index > 0) {
-          const text = processingText.substring(0, index);
+      if (isItalicMatch && (italicIndex ?? 9999) < (strongIndex ?? 9999)) {
+        assertExists(italicIndex);
+        assertExists(italicMatchString);
+        assertExists(italicInner);
+
+        if (italicIndex > 0) {
+          const text = processingText.substring(0, italicIndex);
           id += 1;
           const textElm = genTextElement(id, text, parent);
           tokens.push(textElm);
@@ -80,19 +92,20 @@ const _tokenizeText = (
         parent = elm;
         tokens.push(elm);
 
-        processingText = processingText.replace(matchString, "");
+        processingText = processingText.replace(italicMatchString, "");
 
-        _tokenize(inner, parent);
+        _tokenize(italicInner, parent);
         parent = p;
       }
 
-      if (isStrongMatch) {
-        const { index, matchString, inner } =
-          matchWithStrongRegxp(processingText);
+      if (isStrongMatch && (strongIndex ?? 9999) < (italicIndex ?? 9999)) {
+        assertExists(strongIndex);
+        assertExists(strongMatchString);
+        assertExists(strongInner);
         // Text + Tokenの時, TEXTを取り除く
         // ex) "aaa**bb**cc" -> TEXT Token + "**bb**cc" にする
-        if (index > 0) {
-          const text = processingText.substring(0, index);
+        if (strongIndex > 0) {
+          const text = processingText.substring(0, strongIndex);
           id += 1;
           const textElm = genTextElement(id, text, parent);
           tokens.push(textElm);
@@ -105,9 +118,9 @@ const _tokenizeText = (
         parent = elm;
         tokens.push(elm);
 
-        processingText = processingText.replace(matchString, "");
+        processingText = processingText.replace(strongMatchString, "");
 
-        _tokenize(inner, parent);
+        _tokenize(strongInner, parent);
         parent = p;
       }
     }

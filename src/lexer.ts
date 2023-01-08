@@ -1,5 +1,4 @@
 import { Token } from "./models/token";
-import { exists, assertExists } from "./utils/assert";
 
 const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
 const ITALIC_ELM_REGXP = /__(.*?)__/;
@@ -87,11 +86,9 @@ export const genItalicElement = (
 
 export const matchWithStrongRegxp = (text: string) => {
   const match = text.match(STRONG_ELM_REGXP);
-  assertExists(match);
-  assertExists(match.index);
-  const index = match.index;
-  const matchString = match[0];
-  const inner = match[1];
+  const index = match?.index;
+  const matchString = match?.[0];
+  const inner = match?.[1];
   return { index, matchString, inner };
 };
 
@@ -101,11 +98,9 @@ export const isMatchWithStrongRegxp = (text: string): boolean => {
 
 export const matchWithItalicRegxp = (text: string) => {
   const match = text.match(ITALIC_ELM_REGXP);
-  assertExists(match);
-  assertExists(match.index);
-  const index = match.index;
-  const matchString = match[0];
-  const inner = match[1];
+  const index = match?.index;
+  const matchString = match?.[0];
+  const inner = match?.[1];
   return { index, matchString, inner };
 };
 
@@ -115,8 +110,7 @@ export const isMatchWithItalicRegxp = (text: string): boolean => {
 
 export const matchWithListRegxp = (text: string) => {
   const match = text.match(LIST_REGEXP);
-  assertExists(match);
-  const restString = match[3];
+  const restString = match?.[3];
   return { restString };
 };
 

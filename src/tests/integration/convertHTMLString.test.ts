@@ -23,6 +23,21 @@ describe("convertToHTMLString", () => {
       const expected = "<i>text</i>";
       expect(convertToHTMLString(string)).toBe(expected);
     })
+    test("__aaa__bbb**ccc**が正しく出力される", () => {
+      const string = "__aaa__bbb**ccc**";
+      const expected = "<i>aaa</i>bbb<strong>ccc</strong>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    })
+    test("**aaa**bbb__ccc__が正しく出力される", () => {
+      const string = "**aaa**bbb__ccc__";
+      const expected = "<strong>aaa</strong>bbb<i>ccc</i>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    })
+    test("__aaa__bbb__ccc__が正しく出力される", () => {
+      const string = "__aaa__bbb__ccc__";
+      const expected = "<i>aaa</i>bbb<i>ccc</i>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    })
   })
 
   describe("list", () => {
