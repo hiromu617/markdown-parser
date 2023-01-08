@@ -91,20 +91,12 @@ export const matchWithStrongRegxp = (text: string) => {
   return { index, matchString, inner };
 };
 
-export const isMatchWithStrongRegxp = (text: string): boolean => {
-  return !!text.match(STRONG_ELM_REGXP);
-};
-
 export const matchWithItalicRegxp = (text: string) => {
   const match = text.match(ITALIC_ELM_REGXP);
   const index = match?.index;
   const matchString = match?.[0];
   const inner = match?.[1];
   return { index, matchString, inner };
-};
-
-export const isMatchWithItalicRegxp = (text: string): boolean => {
-  return !!text.match(ITALIC_ELM_REGXP);
 };
 
 export const matchWithListRegxp = (text: string) => {

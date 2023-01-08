@@ -35,6 +35,9 @@ const _tokenizeText = (
   return _tokenize(textElement, initialRoot, tokens);
 };
 
+/**
+ * _tokenizeTextの本体
+ */
 const _tokenize = (
   originalText: string,
   initialParent: Token,
@@ -75,6 +78,9 @@ const _tokenize = (
   return tokens;
 };
 
+/**
+ * インライン要素を含むprocessingTextをToken化する
+ */
 const processInlineElm = (
   processingText: string,
   parent: Token,
