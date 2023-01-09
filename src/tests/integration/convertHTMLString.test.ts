@@ -48,15 +48,28 @@ describe("convertToHTMLString", () => {
     });
   });
 
-  describe("anchor", () => {
+  describe.only("anchor", () => {
     test("[text](url)がa要素として出力される", () => {
       const string = "[text](url)";
       const expected = `<a href="url">text</a>`;
       expect(convertToHTMLString(string)).toBe(expected);
     });
+    test("[**text**](url)が正しく出力される", () => {
+      const string = "[**text**](url)";
+      const expected = `<a href="url"><strong>text</strong></a>`;
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
     test("aaa[text](url)bbbがa要素として出力される", () => {
       const string = "aaa[text](url)bbb";
       const expected = `aaa<a href="url">text</a>bbb`;
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+  });
+
+  describe.only("img", () => {
+    test("![alt](src)がimg要素として出力される", () => {
+      const string = "![alt](src)";
+      const expected = `<img alt="alt" src="src"/>`;
       expect(convertToHTMLString(string)).toBe(expected);
     });
   });
