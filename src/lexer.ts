@@ -3,6 +3,7 @@ import { Token, InlineElmType, ElmType, BlockElmType } from "./models/token";
 const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
 const ITALIC_ELM_REGXP = /__(.*?)__/;
 const STRIKE_ELM_REGXP = /~~(.*?)~~/;
+const ANCHOR_ELM_REGXP = /\[(.*?)\]\((.*?)\)/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
 const H1_REGEXP = /^(# (.+))$/m;
 const H2_REGEXP = /^(## (.+))$/m;
@@ -55,11 +56,12 @@ let id = 0;
 export const genToken = (
   args:
     | {
-        type: Exclude<ElmType, "root" | "text">;
+        type: Exclude<ElmType, "root" | "text" | "anchor">;
         parent: Token;
       }
     | { type: "root" }
     | { type: "text"; content: string; parent: Token }
+    | { type: "anchor"; content: string; parent: Token; url: string }
 ): Token => {
   id += 1;
   switch (args.type) {
@@ -76,6 +78,21 @@ export const genToken = (
         elmType: "text",
         content: args.content,
         parent: args.parent,
+      };
+    case "text":
+      return {
+        id,
+        elmType: "text",
+        content: args.content,
+        parent: args.parent,
+      };
+    case "anchor":
+      return {
+        id,
+        elmType: "anchor",
+        content: args.content,
+        parent: args.parent,
+        url: args.url,
       };
     default:
       return {
@@ -99,6 +116,9 @@ export const getInlineElmMatchResult = (type: InlineElmType, text: string) => {
     case "strike":
       matchResult = text.match(STRIKE_ELM_REGXP) ?? undefined;
       break;
+    case "anchor":
+      matchResult = text.match(ANCHOR_ELM_REGXP) ?? undefined;
+      break;
     default:
       const _: never = type;
   }
@@ -106,6 +126,10 @@ export const getInlineElmMatchResult = (type: InlineElmType, text: string) => {
   const index = matchResult?.index;
   const matchString = matchResult?.[0];
   const inner = matchResult?.[1];
+  if (type === "anchor") {
+    const url = matchResult?.[2];
+    return { index, matchString, inner, url };
+  }
   return { index, matchString, inner };
 };
 
@@ -156,19 +180,27 @@ export const detectFirstInlineElement = (
   const italicMatchResult = text.match(ITALIC_ELM_REGXP);
   const strongMatchResult = text.match(STRONG_ELM_REGXP);
   const strikeMatchResult = text.match(STRIKE_ELM_REGXP);
+  const anchorMatchResult = text.match(ANCHOR_ELM_REGXP);
 
-  if (!italicMatchResult && !strongMatchResult && !strikeMatchResult)
+  if (
+    !italicMatchResult &&
+    !strongMatchResult &&
+    !strikeMatchResult &&
+    !anchorMatchResult
+  )
     return "none";
 
   const italicIndex = italicMatchResult?.index ?? Infinity;
   const strongIndex = strongMatchResult?.index ?? Infinity;
   const strikeIndex = strikeMatchResult?.index ?? Infinity;
+  const anchorIndex = anchorMatchResult?.index ?? Infinity;
 
-  const minIndex = Math.min(italicIndex, strongIndex, strikeIndex);
+  const minIndex = Math.min(italicIndex, strongIndex, strikeIndex, anchorIndex);
 
   if (minIndex === italicIndex) return "italic";
   if (minIndex === strongIndex) return "strong";
   if (minIndex === strikeIndex) return "strike";
+  if (minIndex === anchorIndex) return "anchor";
 
   return "none";
 };
