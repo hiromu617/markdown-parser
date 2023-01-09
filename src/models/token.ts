@@ -11,11 +11,12 @@ export type ElmType =
   | "h3"
   | "h4"
   | "anchor"
-  | "image";
+  | "image"
+  | "codespan";
 
 export type InlineElmType = Extract<
   ElmType,
-  "strong" | "italic" | "strike" | "anchor" | "image"
+  "strong" | "italic" | "strike" | "anchor" | "image" | "codespan"
 >;
 export type BlockElmType = Extract<ElmType, "h1" | "h2" | "h3" | "h4">;
 

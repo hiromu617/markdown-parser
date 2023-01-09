@@ -48,6 +48,14 @@ describe("convertToHTMLString", () => {
     });
   });
 
+  describe("codespan", () => {
+    test("`code`がcode要素として出力される", () => {
+      const string = "`code`";
+      const expected = "<code>code</code>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+  });
+
   describe("anchor", () => {
     test("[text](url)がa要素として出力される", () => {
       const string = "[text](url)";

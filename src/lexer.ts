@@ -3,6 +3,7 @@ import { Token, InlineElmType, ElmType, BlockElmType } from "./models/token";
 const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
 const ITALIC_ELM_REGXP = /__(.*?)__/;
 const STRIKE_ELM_REGXP = /~~(.*?)~~/;
+const CODESPAN_ELM_REGXP = /`(.*?)`/;
 const ANCHOR_ELM_REGXP = /\[(.*?)\]\((.*?)\)/;
 const IMAGE_ELM_REGXP = /!\[(.*?)\]\((.*?)\)/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
@@ -125,6 +126,9 @@ export const getInlineElmMatchResult = (type: InlineElmType, text: string) => {
     case "strike":
       matchResult = text.match(STRIKE_ELM_REGXP) ?? undefined;
       break;
+    case "codespan":
+      matchResult = text.match(CODESPAN_ELM_REGXP) ?? undefined;
+      break;
     case "anchor":
       matchResult = text.match(ANCHOR_ELM_REGXP) ?? undefined;
       break;
@@ -194,13 +198,15 @@ export const detectFirstInlineElement = (
   const strikeMatchResult = text.match(STRIKE_ELM_REGXP);
   const anchorMatchResult = text.match(ANCHOR_ELM_REGXP);
   const imageMatchResult = text.match(IMAGE_ELM_REGXP);
+  const codespanMatchResult = text.match(CODESPAN_ELM_REGXP);
 
   if (
     !italicMatchResult &&
     !strongMatchResult &&
     !strikeMatchResult &&
     !anchorMatchResult &&
-    !imageMatchResult
+    !imageMatchResult &&
+    !codespanMatchResult
   )
     return "none";
 
@@ -209,13 +215,15 @@ export const detectFirstInlineElement = (
   const strikeIndex = strikeMatchResult?.index ?? Infinity;
   const anchorIndex = anchorMatchResult?.index ?? Infinity;
   const imageIndex = imageMatchResult?.index ?? Infinity;
+  const codespanIndex = codespanMatchResult?.index ?? Infinity;
 
   const minIndex = Math.min(
     italicIndex,
     strongIndex,
     strikeIndex,
     anchorIndex,
-    imageIndex
+    imageIndex,
+    codespanIndex
   );
 
   if (minIndex === italicIndex) return "italic";
@@ -223,6 +231,7 @@ export const detectFirstInlineElement = (
   if (minIndex === strikeIndex) return "strike";
   if (minIndex === anchorIndex) return "anchor";
   if (minIndex === imageIndex) return "image";
+  if (minIndex === codespanIndex) return "codespan";
 
   return "none";
 };
