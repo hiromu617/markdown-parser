@@ -96,7 +96,7 @@ const processInlineElm = (
   assertExists(matchResult.matchString);
   assertExists(matchResult.inner);
 
-  const { index, matchString, inner } = matchResult;
+  const { index, matchString, inner, url } = matchResult;
 
   // Text + Tokenの時, TEXTを取り除く
   // ex) "aaa**bb**cc" -> TEXT Token + "**bb**cc" にする
@@ -107,7 +107,13 @@ const processInlineElm = (
     processingText = processingText.replace(content, "");
   }
 
-  const elm = genToken({ type: inlineElmType, parent });
+  const elm = (() => {
+    if (inlineElmType === "anchor") {
+      assertExists(url);
+      return genToken({ type: inlineElmType, parent, url, content: inner });
+    }
+    return genToken({ type: inlineElmType, parent });
+  })();
 
   parent = elm;
   processingText = processingText.replace(matchString, "");

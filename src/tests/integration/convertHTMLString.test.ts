@@ -48,6 +48,19 @@ describe("convertToHTMLString", () => {
     });
   });
 
+  describe("anchor", () => {
+    test("[text](url)がa要素として出力される", () => {
+      const string = "[text](url)";
+      const expected = `<a href="url">text</a>`;
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+    test("aaa[text](url)bbbがa要素として出力される", () => {
+      const string = "aaa[text](url)bbb";
+      const expected = `aaa<a href="url">text</a>bbb`;
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+  });
+
   describe("heading", () => {
     test("# textがh1要素として出力される", () => {
       const string = "# text";
