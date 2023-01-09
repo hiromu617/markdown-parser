@@ -1,7 +1,6 @@
 import { Token } from "./models/token";
-import { MergedToken } from "./models/merged_token";
 
-const isAllElmParentRoot = (tokens: Array<Token | MergedToken>) => {
+const isAllElmParentRoot = (tokens: Array<Token>) => {
   return tokens.map((t) => t.parent?.elmType).every((val) => val === "root");
 };
 
@@ -22,10 +21,7 @@ const _getInsertPosition = (content: string) => {
   return position + 1;
 };
 
-const _createMergedContent = (
-  currentToken: Token | MergedToken,
-  parentToken: Token | MergedToken
-) => {
+const _createMergedContent = (currentToken: Token, parentToken: Token) => {
   let content = "";
   switch (parentToken.elmType) {
     case "li":
@@ -72,7 +68,7 @@ const _createMergedContent = (
   return content;
 };
 
-const _generateHTMLString = (tokens: Array<Token | MergedToken>) => {
+const _generateHTMLString = (tokens: Array<Token>) => {
   return tokens
     .map((t) => t.content)
     .reverse()
@@ -81,7 +77,7 @@ const _generateHTMLString = (tokens: Array<Token | MergedToken>) => {
 
 export const generate = (asts: Token[][]) => {
   const htmlStrings = asts.map((lineTokens) => {
-    let rearrangedAst: Array<Token | MergedToken> = lineTokens.reverse();
+    let rearrangedAst: Array<Token> = lineTokens.reverse();
     // すべてのトークンがRootの下に付くまでマージを繰り返す
     while (!isAllElmParentRoot(rearrangedAst)) {
       let index = 0;
@@ -101,7 +97,7 @@ export const generate = (asts: Token[][]) => {
         const parentToken = rearrangedAst[parentIndex];
         if (!parentToken) break;
 
-        const mergedToken: MergedToken = {
+        const mergedToken: Token = {
           id: parentToken.id,
           elmType: "merged",
           content: _createMergedContent(currentToken, parentToken),
