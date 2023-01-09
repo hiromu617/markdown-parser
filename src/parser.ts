@@ -108,7 +108,7 @@ const processInlineElm = (
   }
 
   const elm = (() => {
-    if (inlineElmType === "anchor") {
+    if (inlineElmType === "anchor" || inlineElmType === "image") {
       assertExists(url);
       return genToken({ type: inlineElmType, parent, url, content: inner });
     }

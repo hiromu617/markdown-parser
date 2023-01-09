@@ -48,15 +48,46 @@ describe("convertToHTMLString", () => {
     });
   });
 
+  describe("codespan", () => {
+    test("`code`がcode要素として出力される", () => {
+      const string = "`code`";
+      const expected = "<code>code</code>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+  });
+
   describe("anchor", () => {
     test("[text](url)がa要素として出力される", () => {
       const string = "[text](url)";
       const expected = `<a href="url">text</a>`;
       expect(convertToHTMLString(string)).toBe(expected);
     });
+    test("[**text**](url)が正しく出力される", () => {
+      const string = "[**text**](url)";
+      const expected = `<a href="url"><strong>text</strong></a>`;
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
     test("aaa[text](url)bbbがa要素として出力される", () => {
       const string = "aaa[text](url)bbb";
       const expected = `aaa<a href="url">text</a>bbb`;
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+  });
+
+  describe("img", () => {
+    test("![alt](src)がimg要素として出力される", () => {
+      const string = "![alt](src)";
+      const expected = `<img alt="alt" src="src"/>`;
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+    test("![alt](src)[text](url)が正しく出力される", () => {
+      const string = "![alt](src)[text](url)";
+      const expected = `<img alt="alt" src="src"/><a href="url">text</a>`;
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+    test("[text](url)![alt](src)が正しく出力される", () => {
+      const string = "[text](url)![alt](src)";
+      const expected = `<a href="url">text</a><img alt="alt" src="src"/>`;
       expect(convertToHTMLString(string)).toBe(expected);
     });
   });
