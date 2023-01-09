@@ -10,11 +10,12 @@ export type ElmType =
   | "h2"
   | "h3"
   | "h4"
-  | "anchor";
+  | "anchor"
+  | "image";
 
 export type InlineElmType = Extract<
   ElmType,
-  "strong" | "italic" | "strike" | "anchor"
+  "strong" | "italic" | "strike" | "anchor" | "image"
 >;
 export type BlockElmType = Extract<ElmType, "h1" | "h2" | "h3" | "h4">;
 
@@ -22,7 +23,7 @@ export type Token = GeneralToken | MergedToken | AnchorToken;
 type GeneralToken = {
   id: number;
   parent: Token;
-  elmType: Exclude<ElmType, "anchor">;
+  elmType: Exclude<ElmType, "anchor" | "image">;
   content: string;
 };
 
@@ -36,7 +37,7 @@ type MergedToken = {
 type AnchorToken = {
   id: number;
   parent: Token;
-  elmType: "anchor";
+  elmType: "anchor" | "image";
   content: string;
   url: string;
 };

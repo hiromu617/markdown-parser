@@ -48,7 +48,7 @@ describe("convertToHTMLString", () => {
     });
   });
 
-  describe.only("anchor", () => {
+  describe("anchor", () => {
     test("[text](url)がa要素として出力される", () => {
       const string = "[text](url)";
       const expected = `<a href="url">text</a>`;
@@ -66,10 +66,20 @@ describe("convertToHTMLString", () => {
     });
   });
 
-  describe.only("img", () => {
+  describe("img", () => {
     test("![alt](src)がimg要素として出力される", () => {
       const string = "![alt](src)";
       const expected = `<img alt="alt" src="src"/>`;
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+    test("![alt](src)[text](url)が正しく出力される", () => {
+      const string = "![alt](src)[text](url)";
+      const expected = `<img alt="alt" src="src"/><a href="url">text</a>`;
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+    test("[text](url)![alt](src)が正しく出力される", () => {
+      const string = "[text](url)![alt](src)";
+      const expected = `<a href="url">text</a><img alt="alt" src="src"/>`;
       expect(convertToHTMLString(string)).toBe(expected);
     });
   });

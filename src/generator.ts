@@ -42,6 +42,9 @@ const _createMergedContent = (currentToken: Token, parentToken: Token) => {
     case "anchor":
       content = `<a href="${parentToken.url}">${currentToken.content}</a>`;
       break;
+    case "image":
+      content = `<img alt="${parentToken.content}" src="${parentToken.url}"/>`;
+      break;
     case "h1":
       content = `<h1>${currentToken.content}</h1>`;
       break;

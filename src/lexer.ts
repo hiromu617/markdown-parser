@@ -4,6 +4,7 @@ const STRONG_ELM_REGXP = /\*\*(.*?)\*\*/;
 const ITALIC_ELM_REGXP = /__(.*?)__/;
 const STRIKE_ELM_REGXP = /~~(.*?)~~/;
 const ANCHOR_ELM_REGXP = /\[(.*?)\]\((.*?)\)/;
+const IMAGE_ELM_REGXP = /!\[(.*?)\]\((.*?)\)/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
 const H1_REGEXP = /^(# (.+))$/m;
 const H2_REGEXP = /^(## (.+))$/m;
@@ -56,12 +57,12 @@ let id = 0;
 export const genToken = (
   args:
     | {
-        type: Exclude<ElmType, "root" | "text" | "anchor">;
+        type: Exclude<ElmType, "root" | "text" | "anchor" | "image">;
         parent: Token;
       }
     | { type: "root" }
     | { type: "text"; content: string; parent: Token }
-    | { type: "anchor"; content: string; parent: Token; url: string }
+    | { type: "anchor" | "image"; content: string; parent: Token; url: string }
 ): Token => {
   id += 1;
   switch (args.type) {
@@ -94,6 +95,14 @@ export const genToken = (
         parent: args.parent,
         url: args.url,
       };
+    case "image":
+      return {
+        id,
+        elmType: "image",
+        content: args.content,
+        parent: args.parent,
+        url: args.url,
+      };
     default:
       return {
         id,
@@ -119,6 +128,9 @@ export const getInlineElmMatchResult = (type: InlineElmType, text: string) => {
     case "anchor":
       matchResult = text.match(ANCHOR_ELM_REGXP) ?? undefined;
       break;
+    case "image":
+      matchResult = text.match(IMAGE_ELM_REGXP) ?? undefined;
+      break;
     default:
       const _: never = type;
   }
@@ -126,7 +138,7 @@ export const getInlineElmMatchResult = (type: InlineElmType, text: string) => {
   const index = matchResult?.index;
   const matchString = matchResult?.[0];
   const inner = matchResult?.[1];
-  if (type === "anchor") {
+  if (type === "anchor" || type === "image") {
     const url = matchResult?.[2];
     return { index, matchString, inner, url };
   }
@@ -181,12 +193,14 @@ export const detectFirstInlineElement = (
   const strongMatchResult = text.match(STRONG_ELM_REGXP);
   const strikeMatchResult = text.match(STRIKE_ELM_REGXP);
   const anchorMatchResult = text.match(ANCHOR_ELM_REGXP);
+  const imageMatchResult = text.match(IMAGE_ELM_REGXP);
 
   if (
     !italicMatchResult &&
     !strongMatchResult &&
     !strikeMatchResult &&
-    !anchorMatchResult
+    !anchorMatchResult &&
+    !imageMatchResult
   )
     return "none";
 
@@ -194,13 +208,21 @@ export const detectFirstInlineElement = (
   const strongIndex = strongMatchResult?.index ?? Infinity;
   const strikeIndex = strikeMatchResult?.index ?? Infinity;
   const anchorIndex = anchorMatchResult?.index ?? Infinity;
+  const imageIndex = imageMatchResult?.index ?? Infinity;
 
-  const minIndex = Math.min(italicIndex, strongIndex, strikeIndex, anchorIndex);
+  const minIndex = Math.min(
+    italicIndex,
+    strongIndex,
+    strikeIndex,
+    anchorIndex,
+    imageIndex
+  );
 
   if (minIndex === italicIndex) return "italic";
   if (minIndex === strongIndex) return "strong";
   if (minIndex === strikeIndex) return "strike";
   if (minIndex === anchorIndex) return "anchor";
+  if (minIndex === imageIndex) return "image";
 
   return "none";
 };
