@@ -31,47 +31,41 @@ export const analize = (markdown: string) => {
 
     if (!isListMatch && !isQuoteMatch) {
       if (state !== "neutral_state") {
+        state = "neutral_state";
         mdArray.push(lists);
         lists = "";
-        state = "neutral_state";
         return;
       }
       mdArray.push(md);
       return;
     }
 
-    if (isListMatch && state !== "quote_state") {
-      lists += `${md}\n`;
+    if (isListMatch) {
+      if (state === "quote_state") {
+        state = "list_state";
+        mdArray.push(lists);
+        lists = `${md}\n`;
+        return;
+      }
       state = "list_state";
-      return;
-    }
-
-    if (isListMatch && state === "quote_state") {
-      mdArray.push(lists);
-      lists = `${md}\n`;
-      state = "list_state";
-      return;
-    }
-
-    if (isQuoteMatch && state !== "list_state") {
       lists += `${md}\n`;
-      state = "quote_state";
-      return;
     }
 
-    if (isQuoteMatch && state === "list_state") {
-      mdArray.push(lists);
-      lists = `${md}\n`;
+    if (isQuoteMatch) {
+      if (state === "list_state") {
+        state = "quote_state";
+        mdArray.push(lists);
+        lists = `${md}\n`;
+        return;
+      }
       state = "quote_state";
-      return;
+      lists += `${md}\n`;
     }
   });
 
   if (lists.length !== 0) {
     mdArray.push(lists);
   }
-
-  console.log(mdArray);
 
   return mdArray;
 };
