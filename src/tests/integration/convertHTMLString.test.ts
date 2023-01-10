@@ -136,6 +136,20 @@ describe("convertToHTMLString", () => {
     });
   });
 
+  describe.only("quote", () => {
+    test("> aaaが正しく出力される", () => {
+      const string = `> aaa`;
+      const expected = "<blockquote>aaa</blockquote>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test("> **aaa**が正しく出力される", () => {
+      const string = `> **aaa**`;
+      const expected = "<blockquote><strong>aaa</strong></blockquote>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+  });
+
   describe("", () => {
     test("複雑なマークダウンの時、正しくHTMLが生成される", () => {
       const string = `

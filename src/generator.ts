@@ -30,6 +30,9 @@ const _createMergedContent = (currentToken: Token, parentToken: Token) => {
     case "ul":
       content = `<ul>${currentToken.content}</ul>`;
       break;
+    case "quote":
+      content = `<blockquote>${currentToken.content}</blockquote>`;
+      break;
     case "strong":
       content = `<strong>${currentToken.content}</strong>`;
       break;

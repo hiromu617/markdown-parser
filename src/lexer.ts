@@ -7,6 +7,7 @@ const CODESPAN_ELM_REGXP = /`(.*?)`/;
 const ANCHOR_ELM_REGXP = /\[(.*?)\]\((.*?)\)/;
 const IMAGE_ELM_REGXP = /!\[(.*?)\]\((.*?)\)/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
+const QUOTE_REGEXP = /^(> (.+))$/m;
 const H1_REGEXP = /^(# (.+))$/m;
 const H2_REGEXP = /^(## (.+))$/m;
 const H3_REGEXP = /^(### (.+))$/m;
@@ -178,8 +179,18 @@ export const getListElmMatchResult = (text: string) => {
   return { restString };
 };
 
+export const getQuoteElmMatchResult = (text: string) => {
+  const match = text.match(QUOTE_REGEXP);
+  const restString = match?.[2];
+  return { restString };
+};
+
 export const isMatchWithListRegxp = (text: string): boolean => {
   return !!text.match(LIST_REGEXP);
+};
+
+export const isMatchWithQuoteRegxp = (text: string): boolean => {
+  return !!text.match(QUOTE_REGEXP);
 };
 
 export const getBlockElmType = (text: string): BlockElmType | "none" => {
