@@ -12,7 +12,8 @@ export type ElmType =
   | "h4"
   | "anchor"
   | "image"
-  | "codespan";
+  | "codespan"
+  | "quote";
 
 export type InlineElmType = Extract<
   ElmType,

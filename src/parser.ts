@@ -2,7 +2,9 @@ import {
   getInlineElmMatchResult,
   getBlockElmMatchResult,
   getListElmMatchResult,
+  getQuoteElmMatchResult,
   isMatchWithListRegxp,
+  isMatchWithQuoteRegxp,
   getBlockElmType,
   genToken,
   detectFirstInlineElement,
@@ -17,10 +19,14 @@ const rootToken = genToken({ type: "root" });
  */
 export const parse = (markdownRow: string) => {
   const isListMatch = isMatchWithListRegxp(markdownRow);
+  const isQuoteMatch = isMatchWithQuoteRegxp(markdownRow);
   const blockElmType = getBlockElmType(markdownRow);
 
   if (isListMatch) {
     return _tokenizeList(markdownRow);
+  }
+  if (isQuoteMatch) {
+    return _tokenizeQuote(markdownRow);
   }
   if (blockElmType !== "none") {
     return _tokenizeBlock(markdownRow, blockElmType);
@@ -146,6 +152,24 @@ const _tokenizeList = (listString: string): Token[] => {
       const listText: Token[] = _tokenizeText(restString, listToken);
       tokens.push(...listText);
     });
+  return tokens;
+};
+
+const _tokenizeQuote = (quoteString: string): Token[] => {
+  const quoteToken = genToken({ type: "quote", parent: rootToken });
+  const tokens: Token[] = [quoteToken];
+
+  quoteString
+    .split(/\r\n|\r|\n/)
+    .filter(Boolean)
+    .forEach((l) => {
+      const { restString } = getQuoteElmMatchResult(l);
+      assertExists(restString);
+
+      const restStringTokens = _tokenizeText(restString, quoteToken);
+      tokens.push(...restStringTokens);
+    });
+
   return tokens;
 };
 

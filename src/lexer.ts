@@ -7,6 +7,7 @@ const CODESPAN_ELM_REGXP = /`(.*?)`/;
 const ANCHOR_ELM_REGXP = /\[(.*?)\]\((.*?)\)/;
 const IMAGE_ELM_REGXP = /!\[(.*?)\]\((.*?)\)/;
 const LIST_REGEXP = /^( *)([-|\*|\+] (.+))$/m;
+const QUOTE_REGEXP = /^(> (.+))$/m;
 const H1_REGEXP = /^(# (.+))$/m;
 const H2_REGEXP = /^(## (.+))$/m;
 const H3_REGEXP = /^(### (.+))$/m;
@@ -14,41 +15,57 @@ const H4_REGEXP = /^(#### (.+))$/m;
 
 /**
  * 1行ごとの文字列の配列を返す
- * ただし、listは一つの要素にまとめられる
+ * ただし、list, quoteは一つの要素にまとめられる
  */
 export const analize = (markdown: string) => {
-  let state: "neutral_state" | "list_state" = "neutral_state";
+  let state: "neutral_state" | "list_state" | "quote_state" = "neutral_state";
 
   let lists = "";
 
   const rawMdArray: ReadonlyArray<string> = markdown.split(/\r\n|\r|\n/);
   const mdArray: Array<string> = [];
 
-  rawMdArray.forEach((md, index) => {
-    const isListMatch = !!md.match(LIST_REGEXP);
-    if (state === "neutral_state" && isListMatch) {
-      state = "list_state";
-      lists += `${md}\n`;
-      return;
-    }
-    if (state === "list_state" && isListMatch) {
-      // 最後の行がリストだった場合
-      if (index === rawMdArray.length - 1) {
-        lists += `${md}`;
+  rawMdArray.forEach((md) => {
+    const isListMatch = isMatchWithListRegxp(md);
+    const isQuoteMatch = isMatchWithQuoteRegxp(md);
+
+    if (!isListMatch && !isQuoteMatch) {
+      if (state !== "neutral_state") {
+        state = "neutral_state";
         mdArray.push(lists);
+        lists = "";
         return;
       }
-      lists += `${md}\n`;
+      mdArray.push(md);
       return;
     }
-    if (state === "neutral_state" && !isListMatch) mdArray.push(md);
-    if (state === "list_state" && !isListMatch) {
-      state = "neutral_state";
-      mdArray.push(lists);
-      lists = ""; // 複数のリストがあった場合のためリスト変数をリセットする
-      return;
+
+    if (isListMatch) {
+      if (state === "quote_state") {
+        state = "list_state";
+        mdArray.push(lists);
+        lists = `${md}\n`;
+        return;
+      }
+      state = "list_state";
+      lists += `${md}\n`;
+    }
+
+    if (isQuoteMatch) {
+      if (state === "list_state") {
+        state = "quote_state";
+        mdArray.push(lists);
+        lists = `${md}\n`;
+        return;
+      }
+      state = "quote_state";
+      lists += `${md}\n`;
     }
   });
+
+  if (lists.length !== 0) {
+    mdArray.push(lists);
+  }
 
   return mdArray;
 };
@@ -178,8 +195,18 @@ export const getListElmMatchResult = (text: string) => {
   return { restString };
 };
 
+export const getQuoteElmMatchResult = (text: string) => {
+  const match = text.match(QUOTE_REGEXP);
+  const restString = match?.[2];
+  return { restString };
+};
+
 export const isMatchWithListRegxp = (text: string): boolean => {
   return !!text.match(LIST_REGEXP);
+};
+
+export const isMatchWithQuoteRegxp = (text: string): boolean => {
+  return !!text.match(QUOTE_REGEXP);
 };
 
 export const getBlockElmType = (text: string): BlockElmType | "none" => {
