@@ -15,7 +15,7 @@ const H4_REGEXP = /^(#### (.+))$/m;
 
 /**
  * 1行ごとの文字列の配列を返す
- * ただし、listは一つの要素にまとめられる
+ * ただし、list, quoteは一つの要素にまとめられる
  */
 export const analize = (markdown: string) => {
   let state: "neutral_state" | "list_state" = "neutral_state";
@@ -27,12 +27,19 @@ export const analize = (markdown: string) => {
 
   rawMdArray.forEach((md, index) => {
     const isListMatch = !!md.match(LIST_REGEXP);
-    if (state === "neutral_state" && isListMatch) {
+    const isQuoteMatch = isMatchWithQuoteRegxp(md);
+    const isMatch = isListMatch || isQuoteMatch;
+
+    if (state === "neutral_state" && isMatch) {
+      if (rawMdArray.length === 1) {
+        mdArray.push(md);
+        return;
+      }
       state = "list_state";
       lists += `${md}\n`;
       return;
     }
-    if (state === "list_state" && isListMatch) {
+    if (state === "list_state" && isMatch) {
       // 最後の行がリストだった場合
       if (index === rawMdArray.length - 1) {
         lists += `${md}`;
@@ -42,8 +49,8 @@ export const analize = (markdown: string) => {
       lists += `${md}\n`;
       return;
     }
-    if (state === "neutral_state" && !isListMatch) mdArray.push(md);
-    if (state === "list_state" && !isListMatch) {
+    if (state === "neutral_state" && !isMatch) mdArray.push(md);
+    if (state === "list_state" && !isMatch) {
       state = "neutral_state";
       mdArray.push(lists);
       lists = ""; // 複数のリストがあった場合のためリスト変数をリセットする

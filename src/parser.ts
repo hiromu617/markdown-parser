@@ -155,15 +155,20 @@ const _tokenizeList = (listString: string): Token[] => {
   return tokens;
 };
 
-const _tokenizeQuote = (markdownRow: string): Token[] => {
+const _tokenizeQuote = (quoteString: string): Token[] => {
   const quoteToken = genToken({ type: "quote", parent: rootToken });
   const tokens: Token[] = [quoteToken];
 
-  const { restString } = getQuoteElmMatchResult(markdownRow);
-  assertExists(restString);
+  quoteString
+    .split(/\r\n|\r|\n/)
+    .filter(Boolean)
+    .forEach((l) => {
+      const { restString } = getQuoteElmMatchResult(l);
+      assertExists(restString);
 
-  const restStringTokens = _tokenizeText(restString, quoteToken);
-  tokens.push(...restStringTokens);
+      const restStringTokens = _tokenizeText(restString, quoteToken);
+      tokens.push(...restStringTokens);
+    });
 
   return tokens;
 };

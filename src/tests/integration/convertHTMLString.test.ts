@@ -125,6 +125,13 @@ describe("convertToHTMLString", () => {
 
   describe("list", () => {
     // list
+    test("- list1がlist要素として出力される", () => {
+      const string = `
+- list1
+`;
+      const expected = "<ul><li>list1</li></ul>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
     test(" - list1\n - list2\n - list3がlist要素として出力される", () => {
       const string = `
 - list1
@@ -146,6 +153,12 @@ describe("convertToHTMLString", () => {
     test("> **aaa**が正しく出力される", () => {
       const string = `> **aaa**`;
       const expected = "<blockquote><strong>aaa</strong></blockquote>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test("> aaa\n> bbb\n> cccが正しく出力される", () => {
+      const string = `> aaa\n> bbb\n> ccc`;
+      const expected = "<blockquote>aaabbbccc</blockquote>";
       expect(convertToHTMLString(string)).toBe(expected);
     });
   });

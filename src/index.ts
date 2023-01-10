@@ -5,7 +5,11 @@ import { analize } from "./lexer";
 export const convertToHTMLString = (markdown: string) => {
   const mdArray = analize(markdown);
   const asts = mdArray.map((md) => parse(md));
-  console.log(asts[0]);
   const htmlString = generate(asts);
   return htmlString;
 };
+
+console.log(convertToHTMLString(`
+- aaa
+> aaa
+`))
