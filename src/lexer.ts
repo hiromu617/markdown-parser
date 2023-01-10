@@ -18,45 +18,60 @@ const H4_REGEXP = /^(#### (.+))$/m;
  * ただし、list, quoteは一つの要素にまとめられる
  */
 export const analize = (markdown: string) => {
-  let state: "neutral_state" | "list_state" = "neutral_state";
+  let state: "neutral_state" | "list_state" | "quote_state" = "neutral_state";
 
   let lists = "";
 
   const rawMdArray: ReadonlyArray<string> = markdown.split(/\r\n|\r|\n/);
   const mdArray: Array<string> = [];
 
-  rawMdArray.forEach((md, index) => {
-    const isListMatch = !!md.match(LIST_REGEXP);
+  rawMdArray.forEach((md) => {
+    const isListMatch = isMatchWithListRegxp(md);
     const isQuoteMatch = isMatchWithQuoteRegxp(md);
-    const isMatch = isListMatch || isQuoteMatch;
 
-    if (state === "neutral_state" && isMatch) {
-      if (rawMdArray.length === 1) {
-        mdArray.push(md);
-        return;
-      }
-      state = "list_state";
-      lists += `${md}\n`;
-      return;
-    }
-    if (state === "list_state" && isMatch) {
-      // 最後の行がリストだった場合
-      if (index === rawMdArray.length - 1) {
-        lists += `${md}`;
+    if (!isListMatch && !isQuoteMatch) {
+      if (state !== "neutral_state") {
         mdArray.push(lists);
+        lists = "";
+        state = "neutral_state";
         return;
       }
-      lists += `${md}\n`;
+      mdArray.push(md);
       return;
     }
-    if (state === "neutral_state" && !isMatch) mdArray.push(md);
-    if (state === "list_state" && !isMatch) {
-      state = "neutral_state";
+
+    if (isListMatch && state !== "quote_state") {
+      lists += `${md}\n`;
+      state = "list_state";
+      return;
+    }
+
+    if (isListMatch && state === "quote_state") {
       mdArray.push(lists);
-      lists = ""; // 複数のリストがあった場合のためリスト変数をリセットする
+      lists = `${md}\n`;
+      state = "list_state";
+      return;
+    }
+
+    if (isQuoteMatch && state !== "list_state") {
+      lists += `${md}\n`;
+      state = "quote_state";
+      return;
+    }
+
+    if (isQuoteMatch && state === "list_state") {
+      mdArray.push(lists);
+      lists = `${md}\n`;
+      state = "quote_state";
       return;
     }
   });
+
+  if (lists.length !== 0) {
+    mdArray.push(lists);
+  }
+
+  console.log(mdArray);
 
   return mdArray;
 };

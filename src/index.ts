@@ -8,8 +8,3 @@ export const convertToHTMLString = (markdown: string) => {
   const htmlString = generate(asts);
   return htmlString;
 };
-
-console.log(convertToHTMLString(`
-- aaa
-> aaa
-`))

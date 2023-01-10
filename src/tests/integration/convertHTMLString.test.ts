@@ -143,7 +143,7 @@ describe("convertToHTMLString", () => {
     });
   });
 
-  describe.only("quote", () => {
+  describe("quote", () => {
     test("> aaaが正しく出力される", () => {
       const string = `> aaa`;
       const expected = "<blockquote>aaa</blockquote>";
@@ -159,6 +159,12 @@ describe("convertToHTMLString", () => {
     test("> aaa\n> bbb\n> cccが正しく出力される", () => {
       const string = `> aaa\n> bbb\n> ccc`;
       const expected = "<blockquote>aaabbbccc</blockquote>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test("> aaa\n- bbbが正しく出力される", () => {
+      const string = `> aaa\n- bbb`;
+      const expected = "<blockquote>aaa</blockquote><ul><li>bbb</li></ul>";
       expect(convertToHTMLString(string)).toBe(expected);
     });
   });
