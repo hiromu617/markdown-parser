@@ -20,7 +20,7 @@ const H4_REGEXP = /^(#### (.+))$/m;
 export const analize = (markdown: string) => {
   let state: "neutral_state" | "list_state" | "quote_state" = "neutral_state";
 
-  let lists = "";
+  const lists: string[] = [];
 
   const rawMdArray: ReadonlyArray<string> = markdown.split(/\r\n|\r|\n/);
   const mdArray: Array<string> = [];
@@ -32,8 +32,8 @@ export const analize = (markdown: string) => {
     if (!isListMatch && !isQuoteMatch) {
       if (state !== "neutral_state") {
         state = "neutral_state";
-        mdArray.push(lists);
-        lists = "";
+        mdArray.push(lists.join("\n"));
+        lists.length = 0;
         return;
       }
       mdArray.push(md);
@@ -43,28 +43,30 @@ export const analize = (markdown: string) => {
     if (isListMatch) {
       if (state === "quote_state") {
         state = "list_state";
-        mdArray.push(lists);
-        lists = `${md}\n`;
+        mdArray.push(lists.join("\n"));
+        lists.length = 0;
+        lists.push(md);
         return;
       }
       state = "list_state";
-      lists += `${md}\n`;
+      lists.push(md);
     }
 
     if (isQuoteMatch) {
       if (state === "list_state") {
         state = "quote_state";
-        mdArray.push(lists);
-        lists = `${md}\n`;
+        mdArray.push(lists.join("\n"));
+        lists.length = 0;
+        lists.push(md);
         return;
       }
       state = "quote_state";
-      lists += `${md}\n`;
+      lists.push(md);
     }
   });
 
   if (lists.length !== 0) {
-    mdArray.push(lists);
+    mdArray.push(lists.join("\n"));
   }
 
   return mdArray;
