@@ -128,6 +128,25 @@ text1
     });
   });
 
+  describe("codeblock", () => {
+    test("```\ncode\n```がcode要素として出力される", () => {
+      const string = "```\ncode\n```";
+      const expected = "<pre><code>code</code></pre>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+    test("```\ncode\ncode2\n```がcode要素として出力される", () => {
+      const string = "```\ncode\ncode2\n```";
+      const expected = "<pre><code>code\ncode2</code></pre>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test.only("aaa\n```\ncode\ncode2\n```がcode要素として出力される", () => {
+      const string = "aaa\n```\ncode\ncode2\n```";
+      const expected = "aaa\n<pre><code>code\ncode2</code></pre>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+  });
+
   describe("anchor", () => {
     test("[text](url)がa要素として出力される", () => {
       const string = "[text](url)";

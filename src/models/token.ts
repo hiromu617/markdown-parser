@@ -14,6 +14,7 @@ export type ElmType =
   | "anchor"
   | "image"
   | "codespan"
+  | "codeblock"
   | "quote";
 
 export type InlineElmType = Extract<

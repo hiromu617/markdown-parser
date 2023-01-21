@@ -45,6 +45,9 @@ const _createMergedContent = (currentToken: Token, parentToken: Token) => {
     case "codespan":
       content = `<code>${currentToken.content}</code>`;
       break;
+    case "codeblock":
+      content = `<pre><code>${currentToken.content}</code></pre>`
+      break
     case "anchor":
       content = `<a href="${parentToken.url}">${currentToken.content}</a>`;
       break;

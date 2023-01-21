@@ -21,9 +21,42 @@ export const analize = (markdown: string) => {
   const rawMdArray: ReadonlyArray<string> = markdown.split(/\r\n|\r|\n/);
   const temp = _analizeListAndQuote(rawMdArray);
   console.log(temp);
-  const mdArray = _analizeText(temp);
+  const temp2 = _analizeCodeBlock(temp);
+  console.log(temp2);
+  const mdArray = _analizeText(temp2);
   console.log(mdArray);
   return mdArray;
+};
+
+const _analizeCodeBlock = (mdArray: ReadonlyArray<string>): string[] => {
+  let state: "code_state" | "other_state" = "other_state";
+
+  const lists: string[] = [];
+  const newMdArray: Array<string> = [];
+
+  mdArray.forEach((md) => {
+    const isCodeBlock = md === "```";
+
+    if (state === "other_state" && isCodeBlock) {
+      state = "code_state";
+      return;
+    }
+
+    if (state === "code_state" && !isCodeBlock) {
+      lists.push(md);
+      return;
+    }
+
+    if (state === "code_state" && isCodeBlock) {
+      newMdArray.push(`\`\`\`${lists.join("\n")}\`\`\``);
+      lists.length = 0;
+      return;
+    }
+
+    newMdArray.push(md);
+  });
+
+  return newMdArray;
 };
 
 const _analizeText = (mdArray: ReadonlyArray<string>): string[] => {
@@ -36,10 +69,15 @@ const _analizeText = (mdArray: ReadonlyArray<string>): string[] => {
   mdArray.forEach((md) => {
     const isListMatch = isMatchWithListRegxp(md);
     const isQuoteMatch = isMatchWithQuoteRegxp(md);
+    const isCode = isCodeBlock(md);
 
     const isEmpty = md.length === 0;
     const isNormalText =
-      getBlockElmType(md) === "p" && !isListMatch && !isQuoteMatch && !isEmpty;
+      getBlockElmType(md) === "p" &&
+      !isListMatch &&
+      !isQuoteMatch &&
+      !isCode &&
+      !isEmpty;
 
     if (isNormalText) {
       state = "paragraph_state";
@@ -257,6 +295,10 @@ export const isMatchWithListRegxp = (text: string): boolean => {
 
 export const isMatchWithQuoteRegxp = (text: string): boolean => {
   return !!text.match(QUOTE_REGEXP);
+};
+
+export const isCodeBlock = (text: string): boolean => {
+  return text.slice(0, 3) === "```";
 };
 
 export const getBlockElmType = (text: string): BlockElmType => {

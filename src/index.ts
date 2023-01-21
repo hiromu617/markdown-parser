@@ -5,7 +5,6 @@ import { analize } from "./lexer";
 export const convertToHTMLString = (markdown: string) => {
   const mdArray = analize(markdown);
   const asts = mdArray.map((md) => parse(md));
-  // console.log(asts)
   const htmlString = generate(asts);
   return htmlString;
 };
