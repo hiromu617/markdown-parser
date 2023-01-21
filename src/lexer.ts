@@ -168,7 +168,10 @@ export const getInlineElmMatchResult = (type: InlineElmType, text: string) => {
   return { index, matchString, inner };
 };
 
-export const getBlockElmMatchResult = (type: BlockElmType, text: string) => {
+export const getHeadingElmMatchResult = (
+  type: Exclude<BlockElmType, "p">,
+  text: string
+) => {
   let matchResult: RegExpMatchArray | undefined;
   switch (type) {
     case "h1":
@@ -211,12 +214,12 @@ export const isMatchWithQuoteRegxp = (text: string): boolean => {
   return !!text.match(QUOTE_REGEXP);
 };
 
-export const getBlockElmType = (text: string): BlockElmType | "none" => {
+export const getBlockElmType = (text: string): BlockElmType => {
   if (!!text.match(H1_REGEXP)) return "h1";
   if (!!text.match(H2_REGEXP)) return "h2";
   if (!!text.match(H3_REGEXP)) return "h3";
   if (!!text.match(H4_REGEXP)) return "h4";
-  return "none";
+  return "p";
 };
 
 export const detectFirstInlineElement = (

@@ -10,6 +10,7 @@ export type ElmType =
   | "h2"
   | "h3"
   | "h4"
+  | "p"
   | "anchor"
   | "image"
   | "codespan"
@@ -19,7 +20,7 @@ export type InlineElmType = Extract<
   ElmType,
   "strong" | "italic" | "strike" | "anchor" | "image" | "codespan"
 >;
-export type BlockElmType = Extract<ElmType, "h1" | "h2" | "h3" | "h4">;
+export type BlockElmType = Extract<ElmType, "h1" | "h2" | "h3" | "h4" | "p">;
 
 export type Token = GeneralToken | MergedToken | AnchorToken;
 type GeneralToken = {
