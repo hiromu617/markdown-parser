@@ -20,6 +20,64 @@ describe("convertToHTMLString", () => {
       const expected = "<p>text<strong>aaa</strong></p>";
       expect(convertToHTMLString(string)).toBe(expected);
     });
+
+    test("複数行のtextがp要素として出力される", () => {
+      const string = `
+text1
+text2
+text3
+`;
+      const expected = "<p>text1<br/>text2<br/>text3</p>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test("複数行のtextがp要素として出力される", () => {
+      const string = `
+text1
+text2
+text3
+
+text4
+`;
+      const expected = "<p>text1<br/>text2<br/>text3</p><p>text4</p>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test("textとheading要素が正しく出力される", () => {
+      const string = `
+text1
+# heading
+`;
+      const expected = "<p>text1</p><h1>heading</h1>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test("textとheading要素が正しく出力される", () => {
+      const string = `
+# heading
+text1
+`;
+      const expected = "<h1>heading</h1><p>text1</p>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test("textとlist要素が正しく出力される", () => {
+      const string = `
+text1
+- list
+`;
+      const expected = "<p>text1</p><ul><li>list</li></ul>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test("textとlist要素が正しく出力される", () => {
+      const string = `
+- list
+text1
+`;
+      const expected = "<ul><li>list</li></ul><p>text1</p>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
   });
 
   describe("strong", () => {
