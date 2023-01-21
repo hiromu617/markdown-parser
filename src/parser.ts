@@ -162,9 +162,10 @@ const _tokenizeQuote = (quoteString: string): Token[] => {
   const tokens: Token[] = [quoteToken];
 
   quoteString
+    .replace(/\r\n|\r|\n/g, "<br/>\n")
     .split(/\r\n|\r|\n/)
     .filter(Boolean)
-    .forEach((l) => {
+    .forEach((l, i) => {
       const { restString } = getQuoteElmMatchResult(l);
       assertExists(restString);
 
