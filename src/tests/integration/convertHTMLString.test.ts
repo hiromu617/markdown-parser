@@ -140,9 +140,15 @@ text1
       expect(convertToHTMLString(string)).toBe(expected);
     });
 
-    test.only("aaa\n```\ncode\ncode2\n```がcode要素として出力される", () => {
+    test("aaa\n```\ncode\ncode2\n```がcode要素として出力される", () => {
       const string = "aaa\n```\ncode\ncode2\n```";
-      const expected = "aaa\n<pre><code>code\ncode2</code></pre>";
+      const expected = "<p>aaa</p><pre><code>code\ncode2</code></pre>";
+      expect(convertToHTMLString(string)).toBe(expected);
+    });
+
+    test("```\ncode\ncode2\n```\nbbbがcode要素として出力される", () => {
+      const string = "```\ncode\ncode2\n```\nbbb";
+      const expected = "<pre><code>code\ncode2</code></pre><p>bbb</p>";
       expect(convertToHTMLString(string)).toBe(expected);
     });
   });
@@ -274,7 +280,7 @@ normal
 
 - **aaa**
 - bbb
-  `;
+`;
       const expected =
         "<p>normal text</p><ul><li>list1</li><li>list2</li><li>list3</li></ul><p>normal</p><h1>heading</h1><ul><li><strong>aaa</strong></li><li>bbb</li></ul>";
       expect(convertToHTMLString(string)).toBe(expected);

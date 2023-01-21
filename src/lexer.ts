@@ -20,11 +20,8 @@ const H4_REGEXP = /^(#### (.+))$/m;
 export const analize = (markdown: string) => {
   const rawMdArray: ReadonlyArray<string> = markdown.split(/\r\n|\r|\n/);
   const temp = _analizeListAndQuote(rawMdArray);
-  console.log(temp);
   const temp2 = _analizeCodeBlock(temp);
-  console.log(temp2);
   const mdArray = _analizeText(temp2);
-  console.log(mdArray);
   return mdArray;
 };
 
@@ -48,6 +45,7 @@ const _analizeCodeBlock = (mdArray: ReadonlyArray<string>): string[] => {
     }
 
     if (state === "code_state" && isCodeBlock) {
+      state = "other_state"
       newMdArray.push(`\`\`\`${lists.join("\n")}\`\`\``);
       lists.length = 0;
       return;
@@ -96,6 +94,10 @@ const _analizeText = (mdArray: ReadonlyArray<string>): string[] => {
 
     newMdArray.push(md);
   });
+
+  if (lists.length !== 0) {
+    newMdArray.push(lists.join("\n"));
+  }
 
   return newMdArray;
 };
@@ -160,7 +162,10 @@ let id = 0;
 export const genToken = (
   args:
     | {
-        type: Exclude<ElmType, "root" | "text" | "anchor" | "image">;
+        type: Exclude<
+          ElmType,
+          "root" | "text" | "anchor" | "image"
+        >;
         parent: Token;
       }
     | { type: "root" }
