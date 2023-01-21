@@ -280,9 +280,14 @@ normal
 
 - **aaa**
 - bbb
+
+\`\`\`
+  console.log("hello")
+  console.log("world")
+\`\`\`
 `;
       const expected =
-        "<p>normal text</p><ul><li>list1</li><li>list2</li><li>list3</li></ul><p>normal</p><h1>heading</h1><ul><li><strong>aaa</strong></li><li>bbb</li></ul>";
+        '<p>normal text</p><ul><li>list1</li><li>list2</li><li>list3</li></ul><p>normal</p><h1>heading</h1><ul><li><strong>aaa</strong></li><li>bbb</li></ul><pre><code>  console.log("hello")\n  console.log("world")</code></pre>';
       expect(convertToHTMLString(string)).toBe(expected);
     });
   });
