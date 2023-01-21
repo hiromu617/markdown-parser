@@ -1,12 +1,26 @@
 {
-  "name": "markdown-parser",
+  "name": "@hiromu617/markdown-parser",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "license": "MIT",
   "scripts": {
     "exec": "ts-node src/index.ts",
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc"
   },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com/@hiromu617"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/@hiromu617/markdown-parser.git"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "devDependencies": {
     "@babel/core": "^7.20.12",
     "@babel/preset-env": "^7.20.2",
