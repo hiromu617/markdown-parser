@@ -5,6 +5,7 @@ import {
   getQuoteElmMatchResult,
   isMatchWithListRegxp,
   isMatchWithQuoteRegxp,
+  isCodeBlock,
   getBlockElmType,
   genToken,
   detectFirstInlineElement,
@@ -20,6 +21,7 @@ const rootToken = genToken({ type: "root" });
 export const parse = (markdownRow: string) => {
   const isListMatch = isMatchWithListRegxp(markdownRow);
   const isQuoteMatch = isMatchWithQuoteRegxp(markdownRow);
+  const isCodeBlockMatch = isCodeBlock(markdownRow);
   const blockElmType = getBlockElmType(markdownRow);
 
   if (isListMatch) {
@@ -27,6 +29,9 @@ export const parse = (markdownRow: string) => {
   }
   if (isQuoteMatch) {
     return _tokenizeQuote(markdownRow);
+  }
+  if (isCodeBlockMatch) {
+    return _tokenizeCodeBlock(markdownRow);
   }
   return _tokenizeBlock(markdownRow, blockElmType);
 };
@@ -198,6 +203,26 @@ const _tokenizeBlock = (
     content: restString,
   });
   tokens.push(textToken);
+
+  return tokens;
+};
+
+const _tokenizeCodeBlock = (markdownRow: string): Token[] => {
+  const tokens: Token[] = [rootToken];
+  const content = markdownRow.slice(0, -3).slice(3);
+
+  const codeblockToken = genToken({
+    type: "codeblock",
+    parent: rootToken,
+  });
+  tokens.push(codeblockToken);
+
+  const code = genToken({
+    type: "text",
+    parent: codeblockToken,
+    content,
+  });
+  tokens.push(code);
 
   return tokens;
 };
