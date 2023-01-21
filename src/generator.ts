@@ -63,6 +63,9 @@ const _createMergedContent = (currentToken: Token, parentToken: Token) => {
     case "h4":
       content = `<h4>${currentToken.content}</h4>`;
       break;
+    case "p":
+      content = `<p>${currentToken.content}</p>`;
+      break;
     case "merged":
       const position = _getInsertPosition(parentToken.content);
 

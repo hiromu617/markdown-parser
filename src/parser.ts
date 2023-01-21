@@ -1,6 +1,6 @@
 import {
   getInlineElmMatchResult,
-  getBlockElmMatchResult,
+  getHeadingElmMatchResult,
   getListElmMatchResult,
   getQuoteElmMatchResult,
   isMatchWithListRegxp,
@@ -28,10 +28,7 @@ export const parse = (markdownRow: string) => {
   if (isQuoteMatch) {
     return _tokenizeQuote(markdownRow);
   }
-  if (blockElmType !== "none") {
-    return _tokenizeBlock(markdownRow, blockElmType);
-  }
-  return _tokenizeText(markdownRow);
+  return _tokenizeBlock(markdownRow, blockElmType);
 };
 
 /**
@@ -181,7 +178,15 @@ const _tokenizeBlock = (
   blockElmType: BlockElmType
 ): Token[] => {
   const tokens: Token[] = [rootToken];
-  const { restString } = getBlockElmMatchResult(blockElmType, markdownRow);
+  if (blockElmType === "p") {
+    const paragraphToken = genToken({ type: blockElmType, parent: rootToken });
+    tokens.push(paragraphToken);
+    const paragraphText: Token[] = _tokenizeText(markdownRow, paragraphToken);
+    tokens.push(...paragraphText);
+    return tokens;
+  }
+
+  const { restString } = getHeadingElmMatchResult(blockElmType, markdownRow);
   assertExists(restString);
 
   const blockToken = genToken({ type: blockElmType, parent: rootToken });
