@@ -255,7 +255,7 @@ text1
 
     test("> aaa\n> bbb\n> cccが正しく出力される", () => {
       const string = `> aaa\n> bbb\n> ccc`;
-      const expected = "<blockquote>aaabbbccc</blockquote>";
+      const expected = "<blockquote>aaa<br/>bbb<br/>ccc</blockquote>";
       expect(convertToHTMLString(string)).toBe(expected);
     });
 
