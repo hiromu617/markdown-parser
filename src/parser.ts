@@ -6,11 +6,13 @@ import {
   isMatchWithListRegxp,
   isMatchWithQuoteRegxp,
   isCodeBlock,
+  isUrl,
   getBlockElmType,
   genToken,
   detectFirstInlineElement,
 } from "./lexer";
 import { Token, InlineElmType, BlockElmType } from "./models/token";
+import { Option } from "./models/option";
 import { assertExists } from "./utils/assert";
 
 const rootToken = genToken({ type: "root" });
@@ -18,7 +20,7 @@ const rootToken = genToken({ type: "root" });
 /**
  * マークダウンの１行からASTを生成する
  */
-export const parse = (markdownRow: string) => {
+export const parse = (markdownRow: string, option?: Option) => {
   const isListMatch = isMatchWithListRegxp(markdownRow);
   const isQuoteMatch = isMatchWithQuoteRegxp(markdownRow);
   const isCodeBlockMatch = isCodeBlock(markdownRow);
@@ -33,7 +35,7 @@ export const parse = (markdownRow: string) => {
   if (isCodeBlockMatch) {
     return _tokenizeCodeBlock(markdownRow);
   }
-  return _tokenizeBlock(markdownRow, blockElmType);
+  return _tokenizeBlock(markdownRow, blockElmType, option?.customRenderUrl);
 };
 
 /**
@@ -181,10 +183,22 @@ const _tokenizeQuote = (quoteString: string): Token[] => {
  */
 const _tokenizeBlock = (
   markdownRow: string,
-  blockElmType: BlockElmType
+  blockElmType: BlockElmType,
+  customRenderUrl?: Option["customRenderUrl"]
 ): Token[] => {
   const tokens: Token[] = [rootToken];
   if (blockElmType === "p") {
+    if (isUrl(markdownRow) && customRenderUrl) {
+      const anchorToken = genToken({
+        type: "customAnchor",
+        parent: rootToken,
+        content: markdownRow,
+        url: markdownRow,
+      });
+      tokens.push(anchorToken);
+      return tokens;
+    }
+
     const paragraphToken = genToken({ type: blockElmType, parent: rootToken });
     tokens.push(paragraphToken);
     const paragraphText: Token[] = _tokenizeText(markdownRow, paragraphToken);

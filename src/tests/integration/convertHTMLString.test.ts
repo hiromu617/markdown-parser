@@ -171,6 +171,16 @@ text1
     });
   });
 
+  describe("link", () => {
+    test("https://google.comがaタグとして出力される", () => {
+      const string = `https://google.com`;
+      const expected = `<a href="https://google.com">https://google.com</a>`;
+      const customRenderUrl = (url: string) =>
+        `<div><a href='${url}'>${url}</a></div>`;
+      expect(convertToHTMLString(string, { customRenderUrl })).toBe(expected);
+    });
+  });
+
   describe("img", () => {
     test("![alt](src)がimg要素として出力される", () => {
       const string = "![alt](src)";

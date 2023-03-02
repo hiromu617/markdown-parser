@@ -15,7 +15,8 @@ export type ElmType =
   | "image"
   | "codespan"
   | "codeblock"
-  | "quote";
+  | "quote"
+  | "customAnchor";
 
 export type InlineElmType = Extract<
   ElmType,
@@ -27,7 +28,7 @@ export type Token = GeneralToken | MergedToken | AnchorToken;
 type GeneralToken = {
   id: number;
   parent: Token;
-  elmType: Exclude<ElmType, "anchor" | "image">;
+  elmType: Exclude<ElmType, "anchor" | "image" | "customAnchor">;
   content: string;
 };
 
@@ -41,7 +42,7 @@ type MergedToken = {
 type AnchorToken = {
   id: number;
   parent: Token;
-  elmType: "anchor" | "image";
+  elmType: "anchor" | "image" | "customAnchor";
   content: string;
   url: string;
 };
