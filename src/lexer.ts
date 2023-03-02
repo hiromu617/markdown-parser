@@ -12,6 +12,7 @@ const H1_REGEXP = /^(# (.+))$/m;
 const H2_REGEXP = /^(## (.+))$/m;
 const H3_REGEXP = /^(### (.+))$/m;
 const H4_REGEXP = /^(#### (.+))$/m;
+const URL_REGEXP = /^https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-]+$/;
 
 /**
  * 1行ごとの文字列の配列を返す
@@ -45,7 +46,7 @@ const _analizeCodeBlock = (mdArray: ReadonlyArray<string>): string[] => {
     }
 
     if (state === "code_state" && isCodeBlock) {
-      state = "other_state"
+      state = "other_state";
       newMdArray.push(`\`\`\`${lists.join("\n")}\`\`\``);
       lists.length = 0;
       return;
@@ -164,13 +165,18 @@ export const genToken = (
     | {
         type: Exclude<
           ElmType,
-          "root" | "text" | "anchor" | "image"
+          "root" | "text" | "anchor" | "image" | "customAnchor"
         >;
         parent: Token;
       }
     | { type: "root" }
     | { type: "text"; content: string; parent: Token }
-    | { type: "anchor" | "image"; content: string; parent: Token; url: string }
+    | {
+        type: "anchor" | "image" | "customAnchor";
+        content: string;
+        parent: Token;
+        url: string;
+      }
 ): Token => {
   id += 1;
   switch (args.type) {
@@ -199,6 +205,14 @@ export const genToken = (
       return {
         id,
         elmType: "anchor",
+        content: args.content,
+        parent: args.parent,
+        url: args.url,
+      };
+    case "customAnchor":
+      return {
+        id,
+        elmType: "customAnchor",
         content: args.content,
         parent: args.parent,
         url: args.url,
@@ -304,6 +318,10 @@ export const isMatchWithQuoteRegxp = (text: string): boolean => {
 
 export const isCodeBlock = (text: string): boolean => {
   return text.slice(0, 3) === "```";
+};
+
+export const isUrl = (text: string): boolean => {
+  return !!text.match(URL_REGEXP);
 };
 
 export const getBlockElmType = (text: string): BlockElmType => {

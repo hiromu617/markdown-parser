@@ -1,4 +1,6 @@
+import { Option } from "./models/option";
 import { Token } from "./models/token";
+import { assertExists } from "./utils/assert";
 
 const isAllElmParentRoot = (tokens: Array<Token>) => {
   return tokens.map((t) => t.parent?.elmType).every((val) => val === "root");
@@ -21,7 +23,11 @@ const _getInsertPosition = (content: string) => {
   return position + 1;
 };
 
-const _createMergedContent = (currentToken: Token, parentToken: Token) => {
+const _createMergedContent = (
+  currentToken: Token,
+  parentToken: Token,
+  option?: Option
+) => {
   let content = "";
   switch (parentToken.elmType) {
     case "li":
@@ -50,6 +56,10 @@ const _createMergedContent = (currentToken: Token, parentToken: Token) => {
       break;
     case "anchor":
       content = `<a href="${parentToken.url}">${currentToken.content}</a>`;
+      break;
+    case "customAnchor":
+      assertExists(option?.customRenderUrl);
+      content = option.customRenderUrl(parentToken.url);
       break;
     case "image":
       content = `<img alt="${parentToken.content}" src="${parentToken.url}"/>`;
@@ -93,7 +103,7 @@ const _generateHTMLString = (tokens: Array<Token>) => {
     .join("");
 };
 
-export const generate = (asts: Token[][]) => {
+export const generate = (asts: Token[][], option?: Option) => {
   const htmlStrings = asts.map((lineTokens) => {
     let rearrangedAst: Array<Token> = lineTokens.reverse();
     // すべてのトークンがRootの下に付くまでマージを繰り返す
@@ -118,7 +128,7 @@ export const generate = (asts: Token[][]) => {
         const mergedToken: Token = {
           id: parentToken.id,
           elmType: "merged",
-          content: _createMergedContent(currentToken, parentToken),
+          content: _createMergedContent(currentToken, parentToken, option),
           parent: parentToken.parent,
         };
         rearrangedAst.splice(parentIndex, 1, mergedToken);
