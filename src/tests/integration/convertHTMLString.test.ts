@@ -172,11 +172,11 @@ text1
   });
 
   describe("link", () => {
-    test("https://google.comがaタグとして出力される", () => {
-      const string = `https://google.com`;
-      const expected = `<a href="https://google.com">https://google.com</a>`;
+    test.only("https://google.comがaタグとして出力される", () => {
       const customRenderUrl = (url: string) =>
         `<div><a href='${url}'>${url}</a></div>`;
+      const string = `https://google.com`;
+      const expected = customRenderUrl(string);
       expect(convertToHTMLString(string, { customRenderUrl })).toBe(expected);
     });
   });

@@ -195,7 +195,14 @@ const _tokenizeBlock = (
         content: markdownRow,
         url: markdownRow,
       });
+      // FIXME:要素が二つしかない時失敗してしまう
       tokens.push(anchorToken);
+      const textToken = genToken({
+        type: "text",
+        content: markdownRow,
+        parent: anchorToken,
+      });
+      tokens.push(textToken);
       return tokens;
     }
 

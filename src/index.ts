@@ -6,6 +6,7 @@ import { Option } from "./models/option";
 export const convertToHTMLString = (markdown: string, option?: Option) => {
   const mdArray = analize(markdown);
   const asts = mdArray.map((md) => parse(md, option));
+  console.log(asts)
   const htmlString = generate(asts, option);
   return htmlString;
 };
